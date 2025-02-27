@@ -19,6 +19,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<UserDTO> save(UserDTO user) {
+        user.setId((long) (users.size() + 1));
         users.put(user.getId(), user);
         return Optional.ofNullable(user);
     }

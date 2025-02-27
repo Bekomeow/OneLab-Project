@@ -22,6 +22,7 @@ public class EventRepositoryImpl implements EventRepository {
 
     @Override
     public Optional<EventDTO> save(EventDTO event) {
+        event.setId((long) (events.size() + 1));
         events.put(event.getId(), event);
         return Optional.ofNullable(event);
     }
