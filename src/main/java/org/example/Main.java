@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class Main {
     public static void main(String[] args) {
-        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
         EventService eventService = context.getBean(EventService.class);
         Scanner scanner = new Scanner(System.in);
 
@@ -77,6 +77,7 @@ public class Main {
                 case 6:
                     System.out.println("Выход...");
                     scanner.close();
+                    context.close();
                     return;
                 default:
                     System.out.println("Неверный ввод. Попробуйте снова.");

@@ -75,18 +75,12 @@ public class EventServiceImpl implements EventService {
 
     public EventDTO createEvent(EventDTO eventDTO) {
         return eventRepository.save(eventDTO)
-                .orElseGet(() -> {
-                    System.out.println("Ошибка: не удалось создать событие.");
-                    return null;
-                });
+                .orElseThrow(() -> new IllegalStateException("Ошибка: не удалось создать событие."));
     }
 
     public UserDTO registerUser(UserDTO userDTO) {
         return userRepository.save(userDTO)
-                .orElseGet(() -> {
-                    System.out.println("Ошибка: регистрация пользователя не удалась.");
-                    return null;
-                });
+                .orElseThrow(() -> new IllegalStateException("Ошибка: не удалось зарегистрировать пользователя."));
     }
 
     public Optional<EventDTO> getEventById(Long id) {
