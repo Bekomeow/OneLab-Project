@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,14 +33,13 @@ public class EventServiceImpl implements EventService {
 
         EventDTO event = eventOpt.get();
         UserDTO user = userOpt.get();
-        if (event.getTickets().size() >= event.getMaxParticipants()) {
+
+        if (ticketRepository.getTicketsByEvent(eventId).size() >= event.getMaxParticipants()) {
             throw new IllegalStateException("Лимит участников достигнут");
         }
 
         TicketDTO ticket = ticketRepository.createTicket(userId, eventId);
 
-        event.getTickets().add(ticket);
-        user.getTicketIds().add(ticket.getId());
         return ticket;
     }
 
@@ -60,7 +58,7 @@ public class EventServiceImpl implements EventService {
         EventDTO event = eventOpt.get();
         UserDTO user = userOpt.get();
 
-        event.getTickets().remove(ticket);
+        ticketRepository.deleteTicketsByEventAndUser(event.getId(), user.getId());
         user.getTicketIds().remove(ticket.getId());
 
         ticket.setStatus(TicketStatus.CANCELLED);
@@ -68,9 +66,13 @@ public class EventServiceImpl implements EventService {
     }
 
     public List<EventDTO> getUpcomingEvents() {
-        return eventRepository.findAll().stream()
+        List<EventDTO> eventList = eventRepository.findAll().stream()
                 .filter(event -> event.getStatus() == EventStatus.PUBLISHED)
-                .collect(Collectors.toList());
+                .toList();
+
+        eventList.forEach(event -> event.setTickets(ticketRepository.getTicketsByEvent(event.getId())));
+
+        return eventList;
     }
 
     public EventDTO createEvent(EventDTO eventDTO) {

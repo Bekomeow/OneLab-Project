@@ -14,4 +14,6 @@ public interface TicketRepository {
     Optional<TicketDTO> getTicketByNumber(UUID ticketNumber);
     Optional<TicketDTO> findById(Long id);
     List<TicketDTO> getTicketsByUser(Long userId);
+    List<TicketDTO> getTicketsByEvent(Long eventId);
+    int deleteTicketsByEventAndUser(Long eventId, Long userId);
 }

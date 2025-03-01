@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.example.enums.EventStatus;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -12,7 +12,7 @@ import java.util.List;
 public class EventDTO {
     private Long id;
     private String name;
-    private LocalDate date;
+    private LocalDateTime date;
     private int maxParticipants;
     private List<TicketDTO> tickets;
     private EventStatus status;

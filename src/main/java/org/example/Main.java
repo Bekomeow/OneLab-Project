@@ -6,10 +6,9 @@ import org.example.dto.TicketDTO;
 import org.example.dto.UserDTO;
 import org.example.enums.EventStatus;
 import org.example.service.EventService;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.UUID;
@@ -21,6 +20,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
+            System.out.print("\n-------------------------------------------------------------------\n");
             System.out.println("Выберите действие:");
             System.out.println("1. Создать событие");
             System.out.println("2. Зарегистрировать пользователя");
@@ -35,10 +35,11 @@ public class Main {
 
             switch (choice) {
                 case 1:
+                    System.out.print("\n-------------------------------------------------------------------\n");
                     System.out.print("Введите название события: ");
                     String eventName = scanner.nextLine();
                     EventDTO eventDTO = EventDTO.builder()
-                            .date(LocalDate.now())
+                            .date(LocalDateTime.now())
                             .maxParticipants(5)
                             .status(EventStatus.PUBLISHED)
                             .name(eventName)
@@ -46,8 +47,10 @@ public class Main {
                             .build();
                     EventDTO event = eventService.createEvent(eventDTO);
                     System.out.println("Событие создано: " + eventName + " , ID: " + event.getId());
+                    System.out.print("\n-------------------------------------------------------------------\n");
                     break;
                 case 2:
+                    System.out.print("\n-------------------------------------------------------------------\n");
                     System.out.print("Введите имя пользователя: ");
                     String userName = scanner.nextLine();
                     UserDTO userDTO = UserDTO.builder()
@@ -56,23 +59,30 @@ public class Main {
                             .build();
                     UserDTO user = eventService.registerUser(userDTO);
                     System.out.println("Пользователь зарегистрирован: " + userName + " , ID: " + user.getId());
+                    System.out.print("\n-------------------------------------------------------------------\n");
                     break;
                 case 3:
+                    System.out.print("\n-------------------------------------------------------------------\n");
                     System.out.print("Введите ID пользователя: ");
                     Long userId = scanner.nextLong();
                     System.out.print("Введите ID события: ");
                     Long eventId = scanner.nextLong();
                     TicketDTO ticket = eventService.registerUserForEvent(userId, eventId);
                     System.out.println("Билет выдан: " + ticket);
+                    System.out.print("\n-------------------------------------------------------------------\n");
                     break;
                 case 4:
+                    System.out.print("\n-------------------------------------------------------------------\n");
                     System.out.print("Введите номер билета: ");
                     UUID ticketNumber = UUID.fromString(scanner.next());
                     eventService.cancelRegistration(ticketNumber);
                     System.out.println("Билет отменен: " + ticketNumber);
+                    System.out.print("\n-------------------------------------------------------------------\n");
                     break;
                 case 5:
+                    System.out.print("\n-------------------------------------------------------------------\n");
                     System.out.println("Все события: \n" + eventService.getUpcomingEvents());
+                    System.out.print("\n-------------------------------------------------------------------\n");
                     break;
                 case 6:
                     System.out.println("Выход...");
