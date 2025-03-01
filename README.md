@@ -47,6 +47,7 @@
 - Java 17+
 - Spring Core
 - Maven
+- H2
 
 ## Контакты
 Разработчик: Toktamyssov Bekzhan
