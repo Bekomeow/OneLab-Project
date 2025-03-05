@@ -1,19 +1,22 @@
 package org.example.repository;
 
-import org.example.dto.TicketDTO;
+import org.example.entity.Event;
+import org.example.entity.Ticket;
+import org.example.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.List;
 
 @Repository
-public interface TicketRepository {
-    TicketDTO createTicket(Long userId, Long eventId);
-    void cancelTicket(UUID ticketNumber);
-    Optional<TicketDTO> getTicketByNumber(UUID ticketNumber);
-    Optional<TicketDTO> findById(Long id);
-    List<TicketDTO> getTicketsByUser(Long userId);
-    List<TicketDTO> getTicketsByEvent(Long eventId);
-    int deleteTicketsByEventAndUser(Long eventId, Long userId);
+public interface TicketRepository extends JpaRepository<Ticket, Long> {
+
+    Optional<Ticket> findByTicketCode(String ticketCode);
+
+    List<Ticket> findByUser(User user);
+
+    List<Ticket> findByEvent(Event event);
+
+    boolean existsByUserAndEvent(User user, Event event);
 }
