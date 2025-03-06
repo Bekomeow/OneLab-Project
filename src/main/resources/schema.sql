@@ -3,6 +3,12 @@ CREATE TABLE roles (
                        name VARCHAR(50) UNIQUE NOT NULL
 );
 
+INSERT INTO roles (name) VALUES
+                             ('ADMIN'),
+                             ('MODERATOR'),
+                             ('USER');
+
+
 CREATE TABLE users (
                        id SERIAL PRIMARY KEY,
                        username VARCHAR(50) UNIQUE NOT NULL,

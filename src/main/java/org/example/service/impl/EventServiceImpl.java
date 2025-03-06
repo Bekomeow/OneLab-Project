@@ -32,7 +32,7 @@ public class EventServiceImpl implements EventService {
         event.setDescription(eventDto.getDescription());
         event.setDate(eventDto.getDate());
         event.setMaxParticipants(eventDto.getMaxParticipants());
-        event.setStatus(EventStatus.DRAFT);
+        event.setStatus(EventStatus.PUBLISHED);
         event.setOrganizer(organizer);
 
         return eventRepository.save(event);

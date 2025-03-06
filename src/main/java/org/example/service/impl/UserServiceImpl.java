@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,12 +34,24 @@ public class UserServiceImpl implements UserService {
 
         User user = new User();
         user.setUsername(userDto.getUsername());
-        user.setEmail(user.getEmail());
+        user.setEmail(userDto.getEmail());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setRole(userRole);
 
         return userRepository.save(user);
     }
+
+    public Optional<User> login(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с таким email не найден"));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Неверный пароль");
+        }
+
+        return Optional.of(user);
+    }
+
 
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
