@@ -1,4 +1,4 @@
-package org.example.Main;
+package org.example.main;
 
 import org.example.EventApplication;
 import org.example.dto.EventDTO;
