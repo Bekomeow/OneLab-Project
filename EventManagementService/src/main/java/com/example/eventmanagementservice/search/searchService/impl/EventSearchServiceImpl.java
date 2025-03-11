@@ -1,7 +1,6 @@
 package com.example.eventmanagementservice.search.searchService.impl;
 
 import com.example.eventmanagementservice.entity.Event;
-import com.example.eventmanagementservice.repository.EventRepository;
 import com.example.eventmanagementservice.search.document.EventDocument;
 import com.example.eventmanagementservice.search.searchRepository.EventSearchRepository;
 import com.example.eventmanagementservice.search.searchService.EventSearchService;

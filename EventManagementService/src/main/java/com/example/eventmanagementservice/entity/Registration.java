@@ -2,12 +2,14 @@ package com.example.eventmanagementservice.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "registrations", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "event_id"}))
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Registration {

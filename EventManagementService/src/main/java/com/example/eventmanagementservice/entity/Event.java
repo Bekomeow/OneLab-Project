@@ -2,10 +2,7 @@ package com.example.eventmanagementservice.entity;
 
 import com.example.eventmanagementservice.enums.EventStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,6 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "events")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {"registrations", "tickets"})
