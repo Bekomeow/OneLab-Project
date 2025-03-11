@@ -1,6 +1,6 @@
-package com.example.eventmanagementservice.repository;
+package com.example.authservice.repository;
 
-import com.example.eventmanagementservice.entity.Role;
+import com.example.authservice.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

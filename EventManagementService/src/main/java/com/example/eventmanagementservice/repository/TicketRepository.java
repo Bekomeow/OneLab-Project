@@ -2,7 +2,6 @@ package com.example.eventmanagementservice.repository;
 
 import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.entity.Ticket;
-import com.example.eventmanagementservice.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,9 +13,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     Optional<Ticket> findByTicketCode(String ticketCode);
 
-    List<Ticket> findByUser(User user);
+    List<Ticket> findByUserId(Long userId);
 
     List<Ticket> findByEvent(Event event);
 
-    boolean existsByUserAndEvent(User user, Event event);
+    boolean existsByUserIdAndEvent(Long userId, Event event);
 }

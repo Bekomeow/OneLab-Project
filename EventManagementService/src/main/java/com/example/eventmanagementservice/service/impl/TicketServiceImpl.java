@@ -2,7 +2,6 @@ package com.example.eventmanagementservice.service.impl;
 
 import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.entity.Ticket;
-import com.example.eventmanagementservice.entity.User;
 import com.example.eventmanagementservice.enums.TicketStatus;
 import com.example.eventmanagementservice.repository.TicketRepository;
 import com.example.eventmanagementservice.service.TicketService;
@@ -20,13 +19,13 @@ public class TicketServiceImpl implements TicketService {
 
     private final TicketRepository ticketRepository;
 
-    public Ticket generateTicket(User user, Event event) {
-        if (ticketRepository.existsByUserAndEvent(user, event)) {
+    public Ticket generateTicket(Long userId, Event event) {
+        if (ticketRepository.existsByUserIdAndEvent(userId, event)) {
             throw new IllegalStateException("Билет уже создан");
         }
 
         Ticket ticket = new Ticket();
-        ticket.setUser(user);
+        ticket.setUserId(userId);
         ticket.setEvent(event);
         ticket.setTicketCode(UUID.randomUUID().toString());
         ticket.setStatus(TicketStatus.ACTIVE);

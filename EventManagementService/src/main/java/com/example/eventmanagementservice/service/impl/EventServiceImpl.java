@@ -2,10 +2,8 @@ package com.example.eventmanagementservice.service.impl;
 
 import com.example.eventmanagementservice.dto.EventDTO;
 import com.example.eventmanagementservice.entity.Event;
-import com.example.eventmanagementservice.entity.User;
 import com.example.eventmanagementservice.enums.EventStatus;
 import com.example.eventmanagementservice.repository.EventRepository;
-import com.example.eventmanagementservice.repository.UserRepository;
 import com.example.eventmanagementservice.service.EventService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -21,11 +19,8 @@ import java.util.List;
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;
 
     public Event createEvent(EventDTO eventDto) {
-        User organizer = userRepository.findById(eventDto.getOrganizerId())
-                .orElseThrow(() -> new EntityNotFoundException("Организатор не найден"));
 
         Event event = new Event();
         event.setTitle(eventDto.getTitle());
@@ -33,7 +28,7 @@ public class EventServiceImpl implements EventService {
         event.setDate(eventDto.getDate());
         event.setMaxParticipants(eventDto.getMaxParticipants());
         event.setStatus(EventStatus.PUBLISHED);
-        event.setOrganizer(organizer);
+        event.setOrganizerId(eventDto.getOrganizerId());
 
         return eventRepository.save(event);
     }
@@ -72,4 +67,13 @@ public class EventServiceImpl implements EventService {
     public List<Event> getUpcomingEvents() {
         return eventRepository.findAllByStatusAndDateAfter(EventStatus.PUBLISHED, LocalDateTime.now());
     }
+
+    public boolean eventExists(Long eventId) {
+        return eventRepository.existsById(eventId);
+    }
+
+    public List<Event> findEventsByIds(List<Long> ids) {
+        return eventRepository.findAllByIdIn(ids);
+    }
+
 }

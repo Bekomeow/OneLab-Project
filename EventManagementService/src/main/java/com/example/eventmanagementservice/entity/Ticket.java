@@ -24,9 +24,8 @@ public class Ticket {
     @Column(nullable = false)
     private TicketStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)

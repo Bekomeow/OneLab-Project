@@ -39,9 +39,8 @@ public class Event {
     @Column(nullable = false)
     private EventStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "organizer_id", nullable = false)
-    private User organizer;
+    @Column(name = "organizer_id", nullable = false)
+    private Long organizerId;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Registration> registrations = new ArrayList<>();

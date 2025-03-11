@@ -11,4 +11,6 @@ public interface EventService {
     void publishEvent(Long eventId);
     void cancelEvent(Long eventId);
     List<Event> getUpcomingEvents();
+    boolean eventExists(Long eventId);
+    List<Event> findEventsByIds(List<Long> ids);
 }
