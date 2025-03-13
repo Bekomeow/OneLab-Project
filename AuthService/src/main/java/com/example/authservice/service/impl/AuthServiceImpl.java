@@ -2,56 +2,52 @@ package com.example.authservice.service.impl;
 
 import com.example.authservice.dto.AuthRequest;
 import com.example.authservice.dto.AuthResponse;
-import com.example.authservice.entity.Role;
+import com.example.authservice.dto.RegisterRequest;
 import com.example.authservice.entity.User;
-import com.example.authservice.repository.RoleRepository;
+import com.example.authservice.enums.Role;
 import com.example.authservice.repository.UserRepository;
+import com.example.authservice.security.JwtUtil;
 import com.example.authservice.service.AuthService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
-    @Transactional
-    public void authenticateUser(AuthRequest request) {
-        String email = request.getEmail();
-        String password = request.getPassword();
-
-        // Проверяем, существует ли пользователь
-        User user = userRepository.findByEmail(email)
-                .orElseGet(() -> registerNewUser(email, password));
-
-        // Проверяем пароль
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            kafkaTemplate.send("auth.user.login.response",
-                    new AuthResponse(user.getId(), email, "INVALID_CREDENTIALS"));
-            return;
-        }
-
-        // Отправляем успешный логин-респонс
-        kafkaTemplate.send("auth.user.login.response",
-                new AuthResponse(user.getId(), email, user.getRole().getName()));
+    public AuthResponse register(RegisterRequest request) {
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .roles(Collections.singletonList(Role.USER))
+                .build();
+        userRepository.save(user);
+        String token = jwtUtil.generateToken(user);
+        return new AuthResponse(token);
     }
 
-    private User registerNewUser(String email, String password) {
-        Role userRole = roleRepository.findByName("USER")
-                .orElseThrow(() -> new IllegalStateException("Role USER not found"));
+    public AuthResponse authenticate(AuthRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
 
-        User newUser = new User();
-        newUser.setEmail(email);
-        newUser.setPassword(passwordEncoder.encode(password));
-        newUser.setRole(userRole);
+        UserDetails userDetails = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
-        return userRepository.save(newUser);
+        String token = jwtUtil.generateToken(userDetails);
+        return new AuthResponse(token);
     }
 }
 

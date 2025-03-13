@@ -1,18 +1,12 @@
-CREATE TABLE roles (
-                       id SERIAL PRIMARY KEY,
-                       name VARCHAR(50) UNIQUE NOT NULL
-);
-
-INSERT INTO roles (name) VALUES
-                             ('ADMIN'),
-                             ('MODERATOR'),
-                             ('USER');
-
-
 CREATE TABLE users (
                        id SERIAL PRIMARY KEY,
-                       email VARCHAR(100) UNIQUE NOT NULL,
-                       password VARCHAR(255) NOT NULL,
-                       role_id INT NOT NULL,
-                       CONSTRAINT fk_users_roles FOREIGN KEY (role_id) REFERENCES roles(id)
+                       username VARCHAR(255) NOT NULL UNIQUE,
+                       email VARCHAR(255) NOT NULL UNIQUE,
+                       password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE user_roles (
+                            user_id BIGINT NOT NULL,
+                            role VARCHAR(50) NOT NULL,
+                            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
