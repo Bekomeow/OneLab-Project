@@ -42,7 +42,7 @@ class EventServiceImplTest {
         event.setDate(LocalDateTime.now().plusDays(1));
         event.setMaxParticipants(100);
         event.setStatus(EventStatus.DRAFT);
-        event.setOrganizerId(1L);
+        event.setOrganizerName("Test");
 
         eventDTO = EventDTO.builder()
                 .id(1L)
