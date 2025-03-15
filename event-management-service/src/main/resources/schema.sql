@@ -6,7 +6,7 @@ CREATE TABLE events (
                         location VARCHAR(255),
                         max_participants INT NOT NULL,
                         status VARCHAR(20) CHECK (status IN ('DRAFT', 'PUBLISHED', 'REGISTRATION_CLOSED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED')),
-                        organizer_name INT NOT NULL
+                        organizer_name VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE registrations (

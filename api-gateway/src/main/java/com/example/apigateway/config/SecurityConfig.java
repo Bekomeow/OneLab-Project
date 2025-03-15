@@ -20,7 +20,6 @@ public class SecurityConfig {
                 .authorizeExchange(auth -> auth
                         .pathMatchers(HttpMethod.GET, "/auth/admin/**").hasAuthority("ROLE_ADMIN")
                         .pathMatchers("/auth/**").permitAll()
-                        .pathMatchers(HttpMethod.POST, "/events").permitAll()
                         .pathMatchers(HttpMethod.POST, "/events").hasAuthority("ROLE_USER")
                         .pathMatchers(HttpMethod.PUT, "/events").hasAuthority("ROLE_USER")
                         .pathMatchers(HttpMethod.POST, "/events/{eventId}/publish").hasAuthority("ROLE_USER")
