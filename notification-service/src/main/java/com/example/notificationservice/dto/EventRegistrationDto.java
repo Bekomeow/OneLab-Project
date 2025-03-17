@@ -1,6 +1,5 @@
-package com.example.eventmanagementservice.dto;
+package com.example.notificationservice.dto;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventRegistration {
+public class EventRegistrationDto {
     private String title;
     private String description;
     private LocalDateTime date;

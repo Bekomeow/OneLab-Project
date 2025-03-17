@@ -1,6 +1,6 @@
 package com.example.notificationservice.listener;
 
-import com.example.notificationservice.dto.EventRegistration;
+import com.example.notificationservice.dto.EventRegistrationDto;
 import com.example.notificationservice.service.MailSenderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class NotificationListener {
+public class RegistrationListener {
     private final MailSenderService mailSenderService;
 
     @KafkaListener(
@@ -21,7 +21,7 @@ public class NotificationListener {
             groupId = "notification-service-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void listen(@Payload EventRegistration registration) {
+    public void listen(@Payload EventRegistrationDto registration) {
 
         System.out.println("Received event: " + registration);
 

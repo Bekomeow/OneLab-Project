@@ -109,7 +109,7 @@ class EventServiceImplTest {
     void shouldCancelEvent() {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
 
-        eventService.cancelEvent(1L);
+        eventService.cancelEvent(1L, "Test");
 
         assertThat(event.getStatus()).isEqualTo(EventStatus.CANCELLED);
         verify(eventRepository, times(1)).save(event);

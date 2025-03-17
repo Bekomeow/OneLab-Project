@@ -1,6 +1,7 @@
 package com.example.notificationservice.config;
 
-import com.example.notificationservice.dto.EventRegistration;
+import com.example.notificationservice.dto.EventRegistrationDto;
+import com.example.notificationservice.dto.EventStatusDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -45,23 +46,44 @@ public class KafkaConfig {
      * Consumer Config
      */
     @Bean
-    public ConsumerFactory<String, EventRegistration> consumerFactory() {
+    public ConsumerFactory<String, EventRegistrationDto> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*"); // Разрешает десериализацию всех пакетов
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(EventRegistration.class));
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(EventRegistrationDto.class));
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, EventRegistration> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, EventRegistration> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, EventRegistrationDto> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, EventRegistrationDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
+
+    @Bean
+    public ConsumerFactory<String, EventStatusDto> eventStatusConsumerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(EventStatusDto.class));
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, EventStatusDto> eventStatusListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, EventStatusDto> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(eventStatusConsumerFactory());
+        return factory;
+    }
+
 
 }

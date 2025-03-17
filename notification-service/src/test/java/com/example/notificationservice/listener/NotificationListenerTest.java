@@ -1,6 +1,6 @@
 package com.example.notificationservice.listener;
 
-import com.example.notificationservice.dto.EventRegistration;
+import com.example.notificationservice.dto.EventRegistrationDto;
 import com.example.notificationservice.service.MailSenderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,13 +23,13 @@ class NotificationListenerTest {
     private MailSenderService mailSenderService;
 
     @InjectMocks
-    private NotificationListener notificationListener;
+    private RegistrationListener notificationListener;
 
-    private EventRegistration registration;
+    private EventRegistrationDto registration;
 
     @BeforeEach
     void setUp() {
-        registration = EventRegistration.builder()
+        registration = EventRegistrationDto.builder()
                 .email("test@example.com")
                 .title("Spring Boot Workshop")
                 .description("An advanced workshop on Spring Boot.")

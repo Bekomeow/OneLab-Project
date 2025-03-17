@@ -1,7 +1,9 @@
 package com.example.eventmanagementservice.controller;
 
+import com.example.eventmanagementservice.dto.CancelEventRequest;
 import com.example.eventmanagementservice.dto.EventDTO;
 import com.example.eventmanagementservice.entity.Event;
+import com.example.eventmanagementservice.search.searchService.EventSearchService;
 import com.example.eventmanagementservice.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.util.List;
 public class EventController {
 
     private final EventService eventService;
+    private final EventSearchService eventSearchService;
 
     @PostMapping
     public ResponseEntity<Event> createEvent(@RequestBody EventDTO eventDTO) {
@@ -27,6 +30,7 @@ public class EventController {
         return ResponseEntity.ok(eventService.updateEvent(eventDTO));
     }
 
+    //FOR MODERATOR ONLY
     @PostMapping("/{eventId}/publish")
     public ResponseEntity<Void> publishEvent(@PathVariable Long eventId) {
         eventService.publishEvent(eventId);
@@ -35,10 +39,12 @@ public class EventController {
 
     //FOR MODERATOR AND EVENT OWNER
     @PostMapping("/{eventId}/cancel")
-    public ResponseEntity<Void> cancelEvent(@PathVariable Long eventId) {
-        eventService.cancelEvent(eventId);
+    public ResponseEntity<Void> cancelEvent(@PathVariable Long eventId,
+                                            @RequestBody CancelEventRequest request) {
+        eventService.cancelEvent(eventId, request.getReason());
         return ResponseEntity.noContent().build();
     }
+
 
     @GetMapping("/upcoming")
     public ResponseEntity<List<Event>> getUpcomingEvents() {
@@ -49,6 +55,11 @@ public class EventController {
     @GetMapping("/drafts")
     public ResponseEntity<List<Event>> getDraftEvents() {
         return ResponseEntity.ok(eventService.getDraftEvents());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Event>> getDraftEvents(@RequestParam String query) {
+        return ResponseEntity.ok(eventService.getEventsByTitleAndDescription(query));
     }
 }
 
