@@ -1,22 +1,19 @@
 package com.example.eventmanagementservice.service.impl;
 
-import com.example.eventmanagementservice.client.AuthServiceClient;
-import com.example.eventmanagementservice.dto.EventRegistration;
+import com.example.eventmanagementservice.dto.EventRegistrationDto;
 import com.example.eventmanagementservice.dto.RegistrationDTO;
 import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.entity.Registration;
 import com.example.eventmanagementservice.enums.EventStatus;
 import com.example.eventmanagementservice.repository.EventRepository;
 import com.example.eventmanagementservice.repository.RegistrationRepository;
-import com.example.eventmanagementservice.security.JwtUtil;
+import com.example.eventmanagementservice.security.SecurityUtil;
 import com.example.eventmanagementservice.service.RegistrationService;
 import com.example.eventmanagementservice.service.TicketService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,19 +26,8 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RegistrationRepository registrationRepository;
     private final EventRepository eventRepository;
     private final TicketService ticketService;
-    private final AuthServiceClient authServiceClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private final JwtUtil jwtUtil;
-
-    public String getCurrentUsername() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
-            return userDetails.getUsername();
-        }
-
-        return null;
-    }
+    private final SecurityUtil securityUtil;
 
     public Registration registerUserForEvent(Long eventId) {
         Event event = eventRepository.findById(eventId)
@@ -57,13 +43,9 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new IllegalStateException("Лимит участников достигнут");
         }
 
-        String token = jwtUtil.getCurrentToken();
-        if (token == null) {
-            throw new RuntimeException("JWT Token not found");
-        }
-
-        String currentUserName = getCurrentUsername();
-        String userEmail = authServiceClient.getEmailByUsername(currentUserName, "Bearer " + token);
+        String currentUserName = securityUtil.getCurrentUsername()
+                .orElseThrow(() -> new IllegalStateException("Пользователь не авторизован"));;
+        String userEmail = securityUtil.getEmailByUsername(currentUserName);
 
         Registration registration = new Registration();
         registration.setUsername(currentUserName);
@@ -71,7 +53,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         ticketService.generateTicket(currentUserName, event);
 
-        EventRegistration eventRegistration = EventRegistration.builder()
+        EventRegistrationDto eventRegistration = EventRegistrationDto.builder()
                 .email(userEmail)
                 .title(event.getTitle())
                 .description(event.getDescription())
@@ -91,7 +73,10 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     public List<RegistrationDTO> getRegistrationsByUser() {
-        return registrationRepository.findByUsername(getCurrentUsername())
+        String currentUserName = securityUtil.getCurrentUsername()
+                .orElseThrow(() -> new IllegalStateException("Пользователь не авторизован"));
+
+        return registrationRepository.findByUsername(currentUserName)
                 .stream().map(
                         registration -> RegistrationDTO.builder()
                         .id(registration.getId())
