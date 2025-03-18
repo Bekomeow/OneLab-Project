@@ -37,10 +37,9 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new IllegalStateException("Регистрация на это мероприятие закрыта");
         }
 
-        if (event.getRegistrations().size() >= event.getMaxParticipants()) {
+        if (event.getRegistrations().size() + 1 >= event.getMaxParticipants()) {
             event.setStatus(EventStatus.REGISTRATION_CLOSED);
             eventRepository.save(event);
-            throw new IllegalStateException("Лимит участников достигнут");
         }
 
         String currentUserName = securityUtil.getCurrentUsername()
@@ -57,7 +56,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .email(userEmail)
                 .title(event.getTitle())
                 .description(event.getDescription())
-                .date(event.getDate())
+                .date(event.getStartDate())
                 .maxParticipants(event.getMaxParticipants())
                 .build();
         kafkaTemplate.send("event.registration.created", eventRegistration);
@@ -68,6 +67,11 @@ public class RegistrationServiceImpl implements RegistrationService {
     public void unregisterUserFromEvent(Long registrationId) {
         Registration registration = registrationRepository.findById(registrationId)
                 .orElseThrow(() -> new EntityNotFoundException("Регистрация не найдена"));
+
+        String currentUserName = securityUtil.getCurrentUsername()
+                .orElseThrow(() -> new IllegalStateException("Пользователь не авторизован"));;
+
+        ticketService.cancelTicket(registration.getEvent().getId(), currentUserName);
 
         registrationRepository.delete(registration);
     }

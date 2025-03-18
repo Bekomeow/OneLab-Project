@@ -47,6 +47,19 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
 
+    //FOR EVENT OWNER
+    @PostMapping("/{eventId}/complete")
+    public ResponseEntity<Void> completeEvent(@PathVariable Long eventId) {
+        eventService.completeEvent(eventId);
+        return ResponseEntity.noContent().build();
+    }
+
+    //FOR EVENT OWNER
+    @PostMapping("/{eventId}/close-registration")
+    public ResponseEntity<Void> closeEventRegistration(@PathVariable Long eventId) {
+        eventService.closeRegistration(eventId);
+        return ResponseEntity.noContent().build();
+    }
 
     @GetMapping("/upcoming")
     public ResponseEntity<List<Event>> getUpcomingEvents() {

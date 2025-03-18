@@ -5,6 +5,6 @@ import com.example.eventmanagementservice.entity.Ticket;
 
 public interface TicketService {
     Ticket generateTicket(String username, Event event);
-    void markTicketAsUsed(Long ticketId);
-    void cancelTicket(Long ticketId);
+    void markTicketAsUsed(Long eventId, String username);
+    void cancelTicket(Long eventId, String username);
 }

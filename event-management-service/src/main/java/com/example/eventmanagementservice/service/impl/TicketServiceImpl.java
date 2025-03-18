@@ -33,16 +33,16 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.save(ticket);
     }
 
-    public void markTicketAsUsed(Long ticketId) {
-        Ticket ticket = ticketRepository.findById(ticketId)
+    public void markTicketAsUsed(Long eventId, String username) {
+        Ticket ticket = ticketRepository.findByEventIdAndUsername(eventId, username)
                 .orElseThrow(() -> new EntityNotFoundException("Билет не найден"));
 
         ticket.setStatus(TicketStatus.USED);
         ticketRepository.save(ticket);
     }
 
-    public void cancelTicket(Long ticketId) {
-        Ticket ticket = ticketRepository.findById(ticketId)
+    public void cancelTicket(Long eventId, String username) {
+        Ticket ticket = ticketRepository.findByEventIdAndUsername(eventId, username)
                 .orElseThrow(() -> new EntityNotFoundException("Билет не найден"));
 
         ticket.setStatus(TicketStatus.CANCELLED);

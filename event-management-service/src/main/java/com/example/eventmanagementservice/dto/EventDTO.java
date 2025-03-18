@@ -12,7 +12,8 @@ public class EventDTO {
     private Long id;
     private String title;
     private String description;
-    private LocalDateTime date;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private int maxParticipants;
     private EventStatus status;
     private String organizerName;

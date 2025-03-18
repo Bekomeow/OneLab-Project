@@ -27,8 +27,11 @@ public class Event {
     @Column(nullable = false, length = 1000)
     private String description;
 
-    @Column(nullable = false)
-    private LocalDateTime date;
+    @Column(name = "start_date", nullable = false)
+    private LocalDateTime startDate;
+
+    @Column(name = "end_date", nullable = false)
+    private LocalDateTime endDate;
 
     @Column(nullable = false)
     private int maxParticipants;

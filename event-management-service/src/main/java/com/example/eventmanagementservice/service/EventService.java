@@ -13,6 +13,8 @@ public interface EventService {
     Event updateEvent(EventDTO eventDto);
     void publishEvent(Long eventId);
     void cancelEvent(Long eventId, String reason);
+    void closeRegistration(Long eventId);
+    void completeEvent(Long eventId);
     List<Event> getUpcomingEvents();
     List<Event> getDraftEvents();
     boolean eventExists(Long eventId);

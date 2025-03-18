@@ -34,7 +34,8 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     public Event createEvent(EventDTO eventDto) {
-        LocalDateTime eventDate = Objects.requireNonNull(eventDto.getDate(), "Дата события не может быть null");
+        LocalDateTime startDate = Objects.requireNonNull(eventDto.getStartDate(), "Дата начало события не может быть null");
+        LocalDateTime endDate = Objects.requireNonNull(eventDto.getEndDate(), "Дата конца события не может быть null");
 
         if (eventDto.getMaxParticipants() < 0) {
             throw new IllegalArgumentException("Количество участников не может быть отрицательным");
@@ -46,7 +47,8 @@ public class EventServiceImpl implements EventService {
         Event event = Event.builder()
                 .title(eventDto.getTitle())
                 .description(eventDto.getDescription())
-                .date(eventDate)
+                .startDate(startDate)
+                .endDate(endDate)
                 .maxParticipants(eventDto.getMaxParticipants())
                 .status(EventStatus.DRAFT)
                 .organizerName(organizer)
@@ -92,7 +94,7 @@ public class EventServiceImpl implements EventService {
                 .email(email)
                 .title(event.getTitle())
                 .description(event.getDescription())
-                .date(event.getDate())
+                .date(event.getStartDate())
                 .maxParticipants(event.getMaxParticipants())
                 .status("PUBLISHED")
                 .build();
@@ -115,7 +117,7 @@ public class EventServiceImpl implements EventService {
                     .email(email)
                     .title(event.getTitle())
                     .description(event.getDescription())
-                    .date(event.getDate())
+                    .date(event.getStartDate())
                     .maxParticipants(event.getMaxParticipants())
                     .status("CANCELLED")
                     .reason(reason)
@@ -127,12 +129,44 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    public void closeRegistration(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Мероприятие не найдено"));
+
+        if (securityUtil.getCurrentUsername().orElse("").equals(event.getOrganizerName())) {
+            event.setStatus(EventStatus.REGISTRATION_CLOSED);
+            eventRepository.save(event);
+        } else {
+            throw new AccessDeniedException("Недостаточно прав для отмены мероприятия");
+        }
+    }
+
+    public void completeEvent(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Мероприятие не найдено"));
+
+        if (securityUtil.getCurrentUsername().orElse("").equals(event.getOrganizerName())) {
+            event.setStatus(EventStatus.REGISTRATION_CLOSED);
+            eventRepository.save(event);
+        } else {
+            throw new AccessDeniedException("Недостаточно прав для отмены мероприятия");
+        }
+
+        if (event.getStatus() != EventStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Только текущие события можно завершить вручную.");
+        }
+
+        event.setStatus(EventStatus.COMPLETED);
+        eventRepository.save(event);
+    }
+
     public List<Event> getUpcomingEvents() {
-        return eventRepository.findAllByStatusAndDateAfter(EventStatus.PUBLISHED, LocalDateTime.now());
+        List<EventStatus> excludedStatuses = List.of(EventStatus.DRAFT, EventStatus.IN_PROGRESS, EventStatus.COMPLETED, EventStatus.CANCELLED);
+        return eventRepository.findUpcomingEvents(excludedStatuses);
     }
 
     public List<Event> getDraftEvents() {
-        return eventRepository.findAllByStatusAndDateAfter(EventStatus.DRAFT, LocalDateTime.now());
+        return eventRepository.findAllByStatusAndStartDateAfter(EventStatus.DRAFT, LocalDateTime.now());
     }
 
     public boolean eventExists(Long eventId) {
@@ -157,6 +191,6 @@ public class EventServiceImpl implements EventService {
 
     public Map<Boolean, List<Event>> partitionEventsByDate() {
         return eventRepository.findAll().stream()
-                .collect(Collectors.partitioningBy(event -> event.getDate().isAfter(LocalDateTime.now())));
+                .collect(Collectors.partitioningBy(event -> event.getStartDate().isAfter(LocalDateTime.now())));
     }
 }
