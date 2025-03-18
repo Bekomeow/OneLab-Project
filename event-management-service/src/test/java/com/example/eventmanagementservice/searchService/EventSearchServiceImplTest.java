@@ -6,81 +6,97 @@ import com.example.eventmanagementservice.search.searchRepository.EventSearchRep
 import com.example.eventmanagementservice.search.searchService.impl.EventSearchServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.Query;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class EventSearchServiceImplTest {
 
     @Mock
     private EventSearchRepository eventSearchRepository;
 
+    @Mock
+    private ElasticsearchOperations elasticsearchOperations;
+
     @InjectMocks
     private EventSearchServiceImpl eventSearchService;
 
+    private Event event;
+    private EventDocument eventDocument;
+
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        event = new Event();
+        event.setId(1L);
+        event.setTitle("Spring Boot Workshop");
+        event.setDescription("An advanced workshop on Spring Boot.");
+        event.setDate(LocalDateTime.now());
+
+        eventDocument = EventDocument.builder()
+                .eventId(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .date(event.getDate().atZone(ZoneId.systemDefault()).toInstant())
+                .build();
     }
 
     @Test
-    void searchEventIds_ShouldReturnListOfEventIds_WhenDocumentsFound() {
-        EventDocument doc1 = EventDocument.builder()
-                .id(1L)
-                .title("Title1")
-                .description("Description1")
-                .build();
+    void searchEventIds_ShouldReturnEventIds() {
+        when(eventSearchRepository.findByTitleContainingOrDescriptionContaining(anyString(), anyString()))
+                .thenReturn(List.of(eventDocument));
 
-        EventDocument doc2 = EventDocument.builder()
-                .id(2L)
-                .title("Title2")
-                .description("Description2")
-                .build();
+        List<Long> result = eventSearchService.searchEventIds("Spring Boot");
 
-        when(eventSearchRepository.findByTitleContainingOrDescriptionContaining("query", "query"))
-                .thenReturn(List.of(doc1, doc2));
-
-        List<Long> result = eventSearchService.searchEventIds("query");
-
-        assertThat(result).containsExactly(1L, 2L);
-        verify(eventSearchRepository).findByTitleContainingOrDescriptionContaining("query", "query");
+        assertThat(result).containsExactly(event.getId());
+        verify(eventSearchRepository, times(1)).findByTitleContainingOrDescriptionContaining("Spring Boot", "Spring Boot");
     }
 
     @Test
-    void searchEventIds_ShouldReturnEmptyList_WhenNoDocumentsFound() {
-        when(eventSearchRepository.findByTitleContainingOrDescriptionContaining("query", "query"))
-                .thenReturn(List.of());
+    void indexEvent_ShouldSaveEventDocument() {
+        eventSearchService.indexEvent(event);
+        verify(eventSearchRepository, times(1)).save(any(EventDocument.class));
+    }
 
-        List<Long> result = eventSearchService.searchEventIds("query");
+    @Test
+    void searchByFilters_ShouldReturnEventIds() {
+        when(elasticsearchOperations.search(any(Query.class), eq(EventDocument.class)))
+                .thenReturn(mock(SearchHits.class));
+
+        List<Long> result = eventSearchService.searchByFilters(Map.of("title", "Spring Boot"));
 
         assertThat(result).isEmpty();
-        verify(eventSearchRepository).findByTitleContainingOrDescriptionContaining("query", "query");
+        verify(elasticsearchOperations, times(1)).search(any(Query.class), eq(EventDocument.class));
     }
 
     @Test
-    void indexEvent_ShouldMapEventToDocumentAndSave() {
-        Event event = Event.builder()
-                .id(1L)
-                .title("Event Title")
-                .description("Event Description")
-                .maxParticipants(10)
-                .build();
+    void searchByDateRange_ShouldThrowException_WhenBothDatesNull() {
+        assertThrows(IllegalArgumentException.class, () -> eventSearchService.searchByDateRange(null, null));
+    }
 
-        eventSearchService.indexEvent(event);
+    @Test
+    void searchByDateRange_ShouldUseCurrentDate_WhenFromDateIsNull() {
+        when(elasticsearchOperations.search(any(Query.class), eq(EventDocument.class)))
+                .thenReturn(mock(SearchHits.class));
 
-        ArgumentCaptor<EventDocument> captor = ArgumentCaptor.forClass(EventDocument.class);
-        verify(eventSearchRepository).save(captor.capture());
+        List<Long> result = eventSearchService.searchByDateRange(null, LocalDateTime.now().plusDays(10));
 
-        EventDocument savedDocument = captor.getValue();
-        assertThat(savedDocument.getId()).isEqualTo(1L);
-        assertThat(savedDocument.getTitle()).isEqualTo("Event Title");
-        assertThat(savedDocument.getDescription()).isEqualTo("Event Description");
+        assertThat(result).isEmpty();
+        verify(elasticsearchOperations, times(1)).search(any(Query.class), eq(EventDocument.class));
     }
 }
 

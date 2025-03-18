@@ -64,7 +64,6 @@ public class EventSearchServiceImpl implements EventSearchService {
             throw new IllegalArgumentException("Необходимо задать хотя бы один из параметров: fromDate или toDate");
         }
 
-        // Если fromDate отсутствует или в прошлом, устанавливаем текущую дату
         if (fromDate == null || fromDate.isBefore(LocalDateTime.now())) {
             fromDate = LocalDateTime.now();
         }

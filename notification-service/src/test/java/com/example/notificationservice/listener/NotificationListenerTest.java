@@ -1,6 +1,7 @@
 package com.example.notificationservice.listener;
 
 import com.example.notificationservice.dto.EventRegistrationDto;
+import com.example.notificationservice.dto.EventStatusDto;
 import com.example.notificationservice.service.MailSenderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,11 +22,13 @@ class NotificationListenerTest {
 
     @Mock
     private MailSenderService mailSenderService;
-
     @InjectMocks
     private RegistrationListener notificationListener;
-
     private EventRegistrationDto registration;
+    @InjectMocks
+    private EventStatusListener eventStatusListener;
+    private EventStatusDto publishedEvent;
+    private EventStatusDto cancelledEvent;
 
     @BeforeEach
     void setUp() {
@@ -35,6 +38,25 @@ class NotificationListenerTest {
                 .description("An advanced workshop on Spring Boot.")
                 .date(LocalDateTime.of(2025, Month.MARCH, 15, 10, 0))
                 .maxParticipants(50)
+                .build();
+
+        publishedEvent = EventStatusDto.builder()
+                .email("test@example.com")
+                .title("Spring Boot Workshop")
+                .description("An advanced workshop on Spring Boot.")
+                .date(LocalDateTime.of(2025, Month.MARCH, 15, 10, 0))
+                .maxParticipants(50)
+                .status("PUBLISHED")
+                .build();
+
+        cancelledEvent = EventStatusDto.builder()
+                .email("test@example.com")
+                .title("Spring Boot Workshop")
+                .description("An advanced workshop on Spring Boot.")
+                .date(LocalDateTime.of(2025, Month.MARCH, 15, 10, 0))
+                .maxParticipants(50)
+                .status("CANCELLED")
+                .reason("Insufficient registrations")
                 .build();
     }
 
@@ -50,8 +72,38 @@ class NotificationListenerTest {
     }
 
     @Test
-    void listen_ShouldLogMessage() {
+    void listen_ShouldLogMessageRegistration() {
         notificationListener.listen(registration);
+
+        System.out.println("Тест: проверка логирования");
+        Mockito.verify(mailSenderService).send(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void listen_ShouldSendPublishedEventEmail() {
+        eventStatusListener.listen(publishedEvent);
+
+        verify(mailSenderService, times(1)).send(
+                eq("test@example.com"),
+                contains("Изменение статуса события: Spring Boot Workshop (опубликовано)"),
+                anyString()
+        );
+    }
+
+    @Test
+    void listen_ShouldSendCancelledEventEmail() {
+        eventStatusListener.listen(cancelledEvent);
+
+        verify(mailSenderService, times(1)).send(
+                eq("test@example.com"),
+                contains("Изменение статуса события: Spring Boot Workshop (отменено)"),
+                contains("Причина отмены: Insufficient registrations")
+        );
+    }
+
+    @Test
+    void listen_ShouldLogMessagePublishedEvent() {
+        eventStatusListener.listen(publishedEvent);
 
         System.out.println("Тест: проверка логирования");
         Mockito.verify(mailSenderService).send(anyString(), anyString(), anyString());
