@@ -274,6 +274,7 @@ GET /events/stream/partitioned
 | Производитель            | Kafka Topic                 | Потребитель             | Описание                          |
 |--------------------------|-----------------------------|-------------------------|-----------------------------------|
 | EventManagementService  | `event.registration.created` | NotificationService     | Уведомление о регистрации        |
+| EventManagementService  | `event.status.notification` | NotificationService     | Уведомление об обновлениях статуса мероприятия (PUBLISHED/CANCELLED)        |
 
 ## Запуск инфраструктуры перед запуском EventService
 Перед запуском EventService необходимо развернуть инфраструктурные компоненты: Kafka и Elasticsearch.
