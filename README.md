@@ -65,15 +65,151 @@
 
 ## 🎟 Контроллер событий (`/events`)
 
-| Метод | URL | Описание | Тело запроса | Ответ |
-|--------|--------------------------------------|---------------------------------|-------------------------------|-----------------------------|
-| **POST** | `/events` | Создать новое событие | ✅ JSON: `{ "title": "Spring Boot Workshop", "description": "In-depth workshop", "date": "2025-03-15T10:00:00", "maxParticipants": 50 }` | 🔄 `200 OK` - Событие создано |
-| **PUT** | `/events` | Обновить существующее событие | ✅ JSON: `{ "id": 1, "title": "Updated Title", "description": "Updated Description" }` | 🔄 `200 OK` - Событие обновлено |
-| **POST** | `/events/{eventId}/publish` | Опубликовать событие | ❌ Нет | ✅ `204 No Content` |
-| **POST** | `/events/{eventId}/cancel` | Отменить событие (Администратор, Модератор, Владелец) | ❌ Нет | ✅ `204 No Content` |
-| **GET** | `/events/upcoming` | Получить предстоящие события | ❌ Нет | 🔄 `200 OK` - Список событий |
-| **GET** | `/events/drafts` | Получить черновые события (только модератор) | ❌ Нет | 🔄 `200 OK` - Список черновых событий |
+## Endpoints
 
+### Create a new event
+```http
+POST /events
+```
+#### Request Body:
+```json
+{
+  "title": "Spring Boot Workshop",
+  "description": "In-depth workshop",
+  "date": "2025-03-15T10:00:00",
+  "maxParticipants": 50
+}
+```
+#### Response:
+`200 OK` - Event created
+
+---
+
+### Update an existing event
+```http
+PUT /events
+```
+#### Request Body:
+```json
+{
+  "id": 1,
+  "title": "Updated Title",
+  "description": "Updated Description"
+}
+```
+#### Response:
+`200 OK` - Event updated
+
+---
+
+### Publish an event
+```http
+POST /events/{eventId}/publish
+```
+#### Response:
+`204 No Content`
+
+---
+
+### Cancel an event (Admin, Moderator, Owner)
+```http
+POST /events/{eventId}/cancel
+```
+#### Response:
+`204 No Content`
+
+---
+
+### Get upcoming events
+```http
+GET /events/upcoming
+```
+#### Response:
+`200 OK` - List of events
+
+---
+
+### Get draft events (Moderator only)
+```http
+GET /events/drafts
+```
+#### Response:
+`200 OK` - List of draft events
+
+---
+
+## Filtering Events
+
+### Search by title and description
+```http
+GET /events/filter?title=conference&description=technology
+```
+#### Response:
+`200 OK` - List of events
+
+### Search between two dates
+```http
+GET /events/filter/date?fromDate=2025-01-01T00:00:00&toDate=2025-12-31T23:59:59
+```
+#### Response:
+`200 OK` - List of events
+
+### Search after a specific date (only future events)
+```http
+GET /events/filter/date?fromDate=2025-06-01T00:00:00
+```
+#### Response:
+`200 OK` - List of events
+
+### Search before a specific date
+```http
+GET /events/filter/date?toDate=2025-06-01T00:00:00
+```
+#### Response:
+`200 OK` - List of events
+
+---
+
+## Performance Comparison
+
+### Sequential processing
+```http
+GET /events/performance/sequential
+```
+#### Response:
+`200 OK` - Performance results
+
+### Parallel processing
+```http
+GET /events/performance/parallel
+```
+#### Response:
+`200 OK` - Performance results
+
+---
+
+## Streaming Data
+
+### Get the most popular events
+```http
+GET /events/stream/most-popular
+```
+#### Response:
+`200 OK` - List of events
+
+### Group events
+```http
+GET /events/stream/grouped
+```
+#### Response:
+`200 OK` - Grouped events
+
+### Partition events into categories
+```http
+GET /events/stream/partitioned
+```
+#### Response:
+`200 OK` - Partitioned events
 ---
 
 ## 🔹 Контроллер регистрации (`/events/registrations`)
