@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,21 +32,37 @@ public class EventServiceImpl implements EventService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final SecurityUtil securityUtil;
 
+    @Transactional
     public Event createEvent(EventDTO eventDto) {
+        LocalDateTime eventDate = Objects.requireNonNull(eventDto.getDate(), "Дата события не может быть null");
 
-        Event event = new Event();
-        event.setTitle(eventDto.getTitle());
-        event.setDescription(eventDto.getDescription());
-        event.setDate(eventDto.getDate());
-        event.setMaxParticipants(eventDto.getMaxParticipants());
-        event.setStatus(EventStatus.DRAFT);
-        event.setOrganizerName(securityUtil.getCurrentUsername()
-                .orElseThrow(() -> new IllegalStateException("Пользователь не авторизован")));
+        if (eventDto.getMaxParticipants() < 0) {
+            throw new IllegalArgumentException("Количество участников не может быть отрицательным");
+        }
 
-        eventSearchService.indexEvent(event);
+        String organizer = securityUtil.getCurrentUsername()
+                .orElseThrow(() -> new IllegalStateException("Пользователь не авторизован"));
 
-        return eventRepository.save(event);
+        Event event = Event.builder()
+                .title(eventDto.getTitle())
+                .description(eventDto.getDescription())
+                .date(eventDate)
+                .maxParticipants(eventDto.getMaxParticipants())
+                .status(EventStatus.DRAFT)
+                .organizerName(organizer)
+                .build();
+
+        event = eventRepository.save(event);
+
+        try {
+            eventSearchService.indexEvent(event);
+        } catch (Exception e) {
+            throw new RuntimeException("Не удалось сохранить событие в поисковый индекс", e);
+        }
+
+        return event;
     }
+
 
     public Event updateEvent(EventDTO eventDto) {
         return eventRepository.findById(eventDto.getId())
@@ -116,19 +135,28 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findAllByStatusAndDateAfter(EventStatus.DRAFT, LocalDateTime.now());
     }
 
-    public List<Event> getEventsByTitleAndDescription(String query) {
-        List<Long> eventIds = eventSearchService.searchEventIds(query);
-        return eventRepository.findAllByIdIn(eventIds).stream()
-                .filter(event -> event.getStatus().equals(EventStatus.PUBLISHED))
-                .collect(Collectors.toList());
-    }
-
     public boolean eventExists(Long eventId) {
         return eventRepository.existsById(eventId);
     }
 
     public List<Event> findEventsByIds(List<Long> ids) {
-        return eventRepository.findAllByIdIn(ids);
+        return eventRepository.findAllByIdIn(ids).stream()
+                .filter(event -> event.getStatus().equals(EventStatus.PUBLISHED))
+                .collect(Collectors.toList());
     }
 
+    public Optional<Event> getEventWithMostParticipants() {
+        return eventRepository.findAll().stream()
+                .reduce((e1, e2) -> e1.getMaxParticipants() > e2.getMaxParticipants() ? e1 : e2);
+    }
+
+    public Map<EventStatus, List<Event>> groupEventsByStatus() {
+        return eventRepository.findAll().stream()
+                .collect(Collectors.groupingBy(Event::getStatus));
+    }
+
+    public Map<Boolean, List<Event>> partitionEventsByDate() {
+        return eventRepository.findAll().stream()
+                .collect(Collectors.partitioningBy(event -> event.getDate().isAfter(LocalDateTime.now())));
+    }
 }

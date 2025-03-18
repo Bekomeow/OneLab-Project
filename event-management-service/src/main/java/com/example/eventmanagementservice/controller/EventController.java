@@ -3,14 +3,16 @@ package com.example.eventmanagementservice.controller;
 import com.example.eventmanagementservice.dto.CancelEventRequest;
 import com.example.eventmanagementservice.dto.EventDTO;
 import com.example.eventmanagementservice.entity.Event;
+import com.example.eventmanagementservice.enums.EventStatus;
 import com.example.eventmanagementservice.search.searchService.EventSearchService;
 import com.example.eventmanagementservice.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/events")
@@ -57,9 +59,33 @@ public class EventController {
         return ResponseEntity.ok(eventService.getDraftEvents());
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<Event>> getDraftEvents(@RequestParam String query) {
-        return ResponseEntity.ok(eventService.getEventsByTitleAndDescription(query));
+    @GetMapping("/filter")
+    public List<Event> filterEvents(@RequestParam Map<String, String> filters) {
+        List<Long> eventIds = eventSearchService.searchByFilters(filters);
+        return eventService.findEventsByIds(eventIds);
+    }
+
+    @GetMapping("/filter/date")
+    public List<Event> filterEventsByDate(
+            @RequestParam(required = false) LocalDateTime fromDate,
+            @RequestParam(required = false) LocalDateTime toDate) {
+        List<Long> eventIds = eventSearchService.searchByDateRange(fromDate, toDate);
+        return eventService.findEventsByIds(eventIds);
+    }
+
+    @GetMapping("/stream/most-popular")
+    public ResponseEntity<Event> getMostPopularEvent() {
+        return ResponseEntity.of(eventService.getEventWithMostParticipants());
+    }
+
+    @GetMapping("/stream/grouped")
+    public ResponseEntity<Map<EventStatus, List<Event>>> getGroupedEvents() {
+        return ResponseEntity.ok(eventService.groupEventsByStatus());
+    }
+
+    @GetMapping("/stream/partitioned")
+    public ResponseEntity<Map<Boolean, List<Event>>> getPartitionedEvents() {
+        return ResponseEntity.ok(eventService.partitionEventsByDate());
     }
 }
 

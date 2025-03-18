@@ -45,9 +45,6 @@ public class MailSenderServiceImpl implements MailSenderService {
         }
 
         notificationLogRepository.save(log);
-
-
-        notificationLogRepository.findAll().stream().forEach(System.out::println);
     }
 
 }
