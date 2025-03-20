@@ -2,6 +2,7 @@ package com.example.eventmanagementservice.service.impl;
 
 import com.example.eventmanagementservice.dto.EventDTO;
 import com.example.eventmanagementservice.dto.EventStatusDto;
+import com.example.eventmanagementservice.dto.EventUpdateDTO;
 import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.enums.EventStatus;
 import com.example.eventmanagementservice.repository.EventRepository;
@@ -65,17 +66,15 @@ public class EventServiceImpl implements EventService {
         return event;
     }
 
-
-    public Event updateEvent(EventDTO eventDto) {
-        return eventRepository.findById(eventDto.getId())
+    public Event updateEvent(Long id, EventUpdateDTO eventDto) {
+        return eventRepository.findById(id)
                 .map(event -> {
                     event.setTitle(eventDto.getTitle());
                     event.setDescription(eventDto.getDescription());
                     return eventRepository.save(event);
                 })
-                .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + eventDto.getId()));
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + id));
     }
-
 
     public void publishEvent(Long eventId) {
         Event event = eventRepository.findById(eventId)
@@ -145,19 +144,16 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Мероприятие не найдено"));
 
-        if (securityUtil.getCurrentUsername().orElse("").equals(event.getOrganizerName())) {
-            event.setStatus(EventStatus.REGISTRATION_CLOSED);
-            eventRepository.save(event);
-        } else {
-            throw new AccessDeniedException("Недостаточно прав для отмены мероприятия");
-        }
-
         if (event.getStatus() != EventStatus.IN_PROGRESS) {
             throw new IllegalStateException("Только текущие события можно завершить вручную.");
         }
 
-        event.setStatus(EventStatus.COMPLETED);
-        eventRepository.save(event);
+        if (securityUtil.getCurrentUsername().orElse("").equals(event.getOrganizerName())) {
+            event.setStatus(EventStatus.COMPLETED);
+            eventRepository.save(event);
+        } else {
+            throw new AccessDeniedException("Недостаточно прав для отмены мероприятия");
+        }
     }
 
     public List<Event> getUpcomingEvents() {

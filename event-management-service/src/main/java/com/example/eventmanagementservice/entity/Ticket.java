@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "tickets", uniqueConstraints = @UniqueConstraint(columnNames = {"username", "event_id"}))
 @Data
@@ -19,7 +21,7 @@ public class Ticket {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String ticketCode;
+    private UUID ticketCode;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

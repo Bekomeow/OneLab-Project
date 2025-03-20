@@ -8,5 +8,5 @@ import lombok.Data;
 public class RegistrationDTO {
     private Long id;
     private String username;
-    private Long eventId;
+    private String eventTitle;
 }

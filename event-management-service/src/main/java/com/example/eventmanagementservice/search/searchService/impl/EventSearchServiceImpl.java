@@ -40,7 +40,7 @@ public class EventSearchServiceImpl implements EventSearchService {
                 .eventId(event.getId())
                 .title(event.getTitle())
                 .description(event.getDescription())
-                .date(event.getDate().atZone(ZoneId.systemDefault()).toInstant())
+                .date(event.getStartDate().atZone(ZoneId.systemDefault()).toInstant())
                 .build();
         eventSearchRepository.save(document);
     }

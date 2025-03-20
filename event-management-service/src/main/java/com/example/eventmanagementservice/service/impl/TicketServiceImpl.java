@@ -27,7 +27,7 @@ public class TicketServiceImpl implements TicketService {
         Ticket ticket = new Ticket();
         ticket.setUsername(username);
         ticket.setEvent(event);
-        ticket.setTicketCode(UUID.randomUUID().toString());
+        ticket.setTicketCode(UUID.randomUUID());
         ticket.setStatus(TicketStatus.ACTIVE);
 
         return ticketRepository.save(ticket);

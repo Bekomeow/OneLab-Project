@@ -5,6 +5,7 @@ import com.example.eventmanagementservice.enums.EventStatus;
 import com.example.eventmanagementservice.enums.TicketStatus;
 import com.example.eventmanagementservice.repository.EventRepository;
 import com.example.eventmanagementservice.service.EventStatusUpdaterService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class EventStatusUpdaterServiceImpl implements EventStatusUpdaterService 
     private final EventRepository eventRepository;
 
     @Scheduled(fixedRate = 60000) // Проверка каждую минуту
+    @Transactional
     public void updateEventStatuses() {
         LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
 
@@ -27,7 +29,7 @@ public class EventStatusUpdaterServiceImpl implements EventStatusUpdaterService 
         );
         toInProgress.forEach(event -> event.setStatus(EventStatus.IN_PROGRESS));
         toInProgress.forEach(event -> {
-            event.getTickets().stream().forEach(ticket -> ticket.setStatus(TicketStatus.USED));
+            event.getTickets().forEach(ticket -> ticket.setStatus(TicketStatus.USED));
         });
 
         eventRepository.saveAll(toInProgress);
@@ -38,7 +40,6 @@ public class EventStatusUpdaterServiceImpl implements EventStatusUpdaterService 
             event.getTickets().forEach(ticket -> ticket.setStatus(TicketStatus.USED));
         });
 
-        eventRepository.saveAll(toInProgress);
         eventRepository.saveAll(toCompleted);
     }
 }

@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: notification_service_db
+    restart: always
+    environment:
+      POSTGRES_USER: beko
+      POSTGRES_PASSWORD: beko
+      POSTGRES_DB: notification_service_db
+    ports:
+      - "5435:5432"

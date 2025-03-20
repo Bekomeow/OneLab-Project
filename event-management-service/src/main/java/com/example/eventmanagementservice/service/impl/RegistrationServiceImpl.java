@@ -68,8 +68,19 @@ public class RegistrationServiceImpl implements RegistrationService {
         Registration registration = registrationRepository.findById(registrationId)
                 .orElseThrow(() -> new EntityNotFoundException("Регистрация не найдена"));
 
+        Event event = registration.getEvent();
+
+        if (!(event.getStatus().equals(EventStatus.PUBLISHED) || event.getStatus().equals(EventStatus.REGISTRATION_CLOSED))) {
+            throw new IllegalStateException("Регистрация на это мероприятие закрыта, нельзя отменить регистрацию");
+        }
+
         String currentUserName = securityUtil.getCurrentUsername()
-                .orElseThrow(() -> new IllegalStateException("Пользователь не авторизован"));;
+                .orElseThrow(() -> new IllegalStateException("Пользователь не авторизован"));
+
+        if (event.getRegistrations().size() == event.getMaxParticipants()) {
+            event.setStatus(EventStatus.PUBLISHED);
+            eventRepository.save(event);
+        }
 
         ticketService.cancelTicket(registration.getEvent().getId(), currentUserName);
 
@@ -85,7 +96,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                         registration -> RegistrationDTO.builder()
                         .id(registration.getId())
                         .username(registration.getUsername())
-                        .eventId(registration.getEvent().getId())
+                        .eventTitle(registration.getEvent().getTitle())
                         .build()
                 ).toList();
     }

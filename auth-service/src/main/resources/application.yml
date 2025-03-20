@@ -2,35 +2,20 @@ spring:
   application:
     name: auth-service
   datasource:
-    url: jdbc:h2:mem:authdb;MODE=PostgreSQL
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
+    url: jdbc:postgresql://localhost:5433/auth_service_db
+    username: beko
+    password: beko
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/changelog/changelog-master.xml
+    enabled: true
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: true
     hibernate:
       ddl-auto: none
-  sql:
-    init:
-      mode: always  # Запуск schema.sql и data.sql при старте
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: auth-group
-      auto-offset-reset: earliest
-      enable-auto-commit: false
-      properties:
-        spring.json.trusted.packages: "*"
-        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
 jwt:
   secret: OQqAf7yZmXVoD0idFdFdgDgfFgKHgAsjFlUFfgTfhY9TjPz8rZwYjRidFdDefFDhNsfKKzM0uM5O6MvFo

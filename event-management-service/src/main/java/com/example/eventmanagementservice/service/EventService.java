@@ -1,6 +1,7 @@
 package com.example.eventmanagementservice.service;
 
 import com.example.eventmanagementservice.dto.EventDTO;
+import com.example.eventmanagementservice.dto.EventUpdateDTO;
 import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.enums.EventStatus;
 
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 public interface EventService {
     Event createEvent(EventDTO eventDTO);
-    Event updateEvent(EventDTO eventDto);
+    Event updateEvent(Long id, EventUpdateDTO eventDto);
     void publishEvent(Long eventId);
     void cancelEvent(Long eventId, String reason);
     void closeRegistration(Long eventId);

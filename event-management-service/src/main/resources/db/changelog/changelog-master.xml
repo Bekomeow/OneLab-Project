@@ -1,0 +1,25 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet author="Beko" id="1">
+        <sqlFile path="classpath:db/changelog/migration/V1__create_table_events.sql"
+                 relativeToChangelogFile="false"
+                 splitStatements="true"/>
+    </changeSet>
+
+    <changeSet author="Beko" id="2">
+        <sqlFile path="classpath:db/changelog/migration/V2__create_table_registrations.sql"
+                 relativeToChangelogFile="false"
+                 splitStatements="true"/>
+    </changeSet>
+
+    <changeSet author="Beko" id="3">
+        <sqlFile path="classpath:db/changelog/migration/V3__create_table_tickets.sql"
+                 relativeToChangelogFile="false"
+                 splitStatements="true"/>
+    </changeSet>
+
+</databaseChangeLog>

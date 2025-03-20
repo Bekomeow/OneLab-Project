@@ -2,6 +2,7 @@ package com.example.eventmanagementservice.controller;
 
 import com.example.eventmanagementservice.dto.CancelEventRequest;
 import com.example.eventmanagementservice.dto.EventDTO;
+import com.example.eventmanagementservice.dto.EventUpdateDTO;
 import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.enums.EventStatus;
 import com.example.eventmanagementservice.search.searchService.EventSearchService;
@@ -27,9 +28,9 @@ public class EventController {
         return ResponseEntity.ok(eventService.createEvent(eventDTO));
     }
 
-    @PutMapping
-    public ResponseEntity<Event> updateEvent(@RequestBody EventDTO eventDTO) {
-        return ResponseEntity.ok(eventService.updateEvent(eventDTO));
+    @PutMapping("/{eventId}")
+    public ResponseEntity<Event> updateEvent(@PathVariable Long eventId, @RequestBody EventUpdateDTO eventDTO) {
+        return ResponseEntity.ok(eventService.updateEvent(eventId, eventDTO));
     }
 
     //FOR MODERATOR ONLY

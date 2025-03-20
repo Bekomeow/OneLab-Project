@@ -2,21 +2,20 @@ spring:
   application:
     name: event-management-service
   datasource:
-    url: jdbc:h2:mem:eventdb;MODE=PostgreSQL
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
+    url: jdbc:postgresql://localhost:5434/event_service_db
+    username: beko
+    password: beko
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/changelog/changelog-master.xml
+    enabled: true
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: true
     hibernate:
       ddl-auto: none
-  sql:
-    init:
-      mode: always  # Запуск schema.sql и data.sql при старте
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
   elasticsearch:
     uris: http://localhost:9200
     connection-timeout: 5s
