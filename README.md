@@ -4,7 +4,7 @@
 **Event Management System – микросервисное приложение на Java, реализованное с использованием Spring Boot, Spring Cloud, Kafka и Eureka. Оно предназначено для управления мероприятиями, регистрации пользователей и отправки уведомлений.**
 
 ## Архитектура системы
-Приложение разделено на несколько сервисов, взаимодействующих через Kafka и управляемых через API Gateway.
+Приложение разделено на несколько сервисов, взаимодействующих через REST, Kafka и управляемых через API Gateway.
 
 ### 1. **API Gateway (api-gateway)**
 📌 **Задачи:**
@@ -14,10 +14,8 @@
 
 ### 2. **AuthService (Сервис аутентификации)**
 📌 **Задачи:**
-- Регистрация и аутентификация пользователей.
+- Регистрация и аутентификация пользователей (JWT).
 - Управление ролями (USER, MODERATOR, ADMIN).
-- Логин пользователей (JWT).
-- Отправка в Kafka текущего пользователя при успешном логине.
 
 🛠 **Эндпоинты:**
 # 📌 API Аутентификации и Администрирования
@@ -59,6 +57,7 @@
 
 🛠 **Взаимодействие через Kafka:**
 - При регистрации на мероприятие публикует событие `event.registration.created`.
+- Уведомление об обновлениях статуса мероприятия (PUBLISHED/CANCELLED) `event.status.notification`.
 
 🛠 **Эндпоинты:**
 # 📌 API Endpoints - Event Management Service
@@ -74,10 +73,11 @@ POST /events
 #### Request Body:
 ```json
 {
-  "title": "Spring Boot Workshop",
-  "description": "In-depth workshop",
-  "date": "2025-03-15T10:00:00",
-  "maxParticipants": 50
+  "title": "Test title",
+  "description": "An in-depth workshop on Spring Boot best practices.",
+  "startDate": "2025-03-20T15:41:00",
+  "endDate": "2025-03-21T15:35:00",
+  "maxParticipants": 1
 }
 ```
 #### Response:
@@ -87,7 +87,7 @@ POST /events
 
 ### Update an existing event
 ```http
-PUT /events
+PUT /events/{eventId}
 ```
 #### Request Body:
 ```json
@@ -114,6 +114,30 @@ POST /events/{eventId}/publish
 ### Cancel an event (Admin, Moderator, Owner)
 ```http
 POST /events/{eventId}/cancel
+```
+#### Request Body:
+```json
+{
+  "reason": "Test reason"
+}
+```
+#### Response:
+`204 No Content`
+
+---
+
+### Complete an event (Owner)
+```http
+POST /events/{eventId}/complete
+```
+#### Response:
+`204 No Content`
+
+---
+
+### Close Registration (Owner)
+```http
+POST /events/{eventId}/close-registration
 ```
 #### Response:
 `204 No Content`
@@ -167,24 +191,6 @@ GET /events/filter/date?toDate=2025-06-01T00:00:00
 ```
 #### Response:
 `200 OK` - List of events
-
----
-
-## Performance Comparison
-
-### Sequential processing
-```http
-GET /events/performance/sequential
-```
-#### Response:
-`200 OK` - Performance results
-
-### Parallel processing
-```http
-GET /events/performance/parallel
-```
-#### Response:
-`200 OK` - Performance results
 
 ---
 
@@ -246,6 +252,7 @@ GET /events/stream/partitioned
 - Регистрация новых пользователей.
 - Авторизация пользователей.
 - Просмотр списка всех пользователей.
+- Удалить пользователя.
 
 ### 3. Регистрация на мероприятия
 - Регистрация пользователя на мероприятие.
@@ -254,7 +261,7 @@ GET /events/stream/partitioned
 ### 4. Управление билетами
 - Генерация уникальных билетов при успешной регистрации.
 - Хранение билетов с привязкой к пользователю и мероприятию.
-- Отмена билета.
+- Отмена регистрации.
 
 ### 5. Взаимодействие с бизнес-логикой
 - Проверка возможности регистрации на мероприятие (учет лимита мест).
@@ -277,30 +284,32 @@ GET /events/stream/partitioned
 | EventManagementService  | `event.status.notification` | NotificationService     | Уведомление об обновлениях статуса мероприятия (PUBLISHED/CANCELLED)        |
 
 ## Запуск инфраструктуры перед запуском EventService
-Перед запуском EventService необходимо развернуть инфраструктурные компоненты: Kafka и Elasticsearch.
+Перед запуском EventService необходимо развернуть инфраструктурные компоненты: Kafka, Postgresql, Elasticsearch.
 
 ### Подготовка к запуску
 Docker Compose файл с необходимыми сервисами находится в папке:
-📂 EventService/src/main/resources
+📂 Kafka, Elasticsearch: event-management-service/src/main/resources
+📂 Postgresql: event-management-service/
+📂 Postgresql: notification-service/
+📂 Postgresql: auth-service/
 
 ### Шаги для развертывания
 - Перейти в директорию с конфигурацией Docker Compose.
 - Запустить сервисы в фоновом режиме.
 - Проверить, что контейнеры работают.
-- После успешного запуска можно запускать EventService.
+- После успешного запуска можно запускать 1.eureka-server -> 2.(event-management-service, notification-service, auth-service) -> 3.api-gateway
 
 
 ## Стек технологий
 - Java 17+
 - Spring Boot
-- Spring Cloud Gateway
 - Spring Security
-- Spring Cloud Netflix Eureka
+- Spring Cloud
 - Maven
 - Apache Kafka
 - Docker Compose
-- H2 (временная база данных для тестирования)
-- PostgreSQL (основная база данных)
+- PostgreSQL
+- Elasticsearch
 - JUnit 5, Mockito, AssertJ
 
 ## Контакты
