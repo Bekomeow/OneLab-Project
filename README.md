@@ -49,7 +49,7 @@
 ## 🔐 Безопасность
 Все эндпоинты в `/auth/admin` требуют наличия роли **`ROLE_ADMIN`**.
 
-### 3. **EventManagementService (Главный сервис, консольное приложение)**
+### 3. **EventManagementService (Главный сервис)**
 📌 **Задачи:**
 - Создание, редактирование и управление мероприятиями.
 - Регистрация пользователей на мероприятия.
@@ -240,7 +240,7 @@ GET /events/stream/partitioned
 - Отправляет email с информацией о мероприятии и билете.
 
 🛠 **Взаимодействие через Kafka:**
-- Слушает `event.registration.created` и отправляет email пользователю.
+- Слушает `event.registration.created, event.status.notification` и отправляет email пользователю.
 
 ## Функциональные возможности
 ### 1. Управление мероприятиями
@@ -288,10 +288,10 @@ GET /events/stream/partitioned
 
 ### Подготовка к запуску
 Docker Compose файл с необходимыми сервисами находится в папке:
-📂 Kafka, Elasticsearch: event-management-service/src/main/resources
-📂 Postgresql: event-management-service/
-📂 Postgresql: notification-service/
-📂 Postgresql: auth-service/
+- 📂 Kafka, Elasticsearch: event-management-service/src/main/resources
+- 📂 Postgresql: event-management-service/
+- 📂 Postgresql: notification-service/
+- 📂 Postgresql: auth-service/
 
 ### Шаги для развертывания
 - Перейти в директорию с конфигурацией Docker Compose.
