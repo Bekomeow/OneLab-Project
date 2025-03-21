@@ -23,8 +23,6 @@ public class EventStatusListener {
     )
     public void listen(@Payload EventStatusDto update) {
 
-        System.out.println("Received event status update: " + update);
-
         String statusMessage = "PUBLISHED".equals(update.getStatus()) ? "опубликовано" : "отменено";
         String subject = "Изменение статуса события: " + update.getTitle() + " (" + statusMessage + ")";
 

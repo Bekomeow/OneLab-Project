@@ -17,6 +17,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -91,7 +92,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         String currentUserName = securityUtil.getCurrentUsername()
                 .orElseThrow(() -> new IllegalStateException("Пользователь не авторизован"));
 
-        return registrationRepository.findByUsername(currentUserName)
+        return registrationRepository.findAllByUsername(currentUserName)
                 .stream().map(
                         registration -> RegistrationDTO.builder()
                         .id(registration.getId())
@@ -99,5 +100,30 @@ public class RegistrationServiceImpl implements RegistrationService {
                         .eventTitle(registration.getEvent().getTitle())
                         .build()
                 ).toList();
+    }
+
+    public void deleteAllRegistrationsByUser(String username) {
+        List<Registration> registrations = registrationRepository.findAllByUsername(username)
+                .stream().filter(registration ->
+                        (registration.getEvent().getStatus().equals(EventStatus.PUBLISHED)
+                        || registration.getEvent().getStatus().equals(EventStatus.REGISTRATION_CLOSED)))
+                .collect(Collectors.toList());
+
+        if (registrations.isEmpty()) {
+            throw new EntityNotFoundException("Регистрации для пользователя " + username + " не найдены");
+        }
+
+        for (Registration registration : registrations) {
+            Event event = registration.getEvent();
+
+            if (event.getStatus().equals(EventStatus.REGISTRATION_CLOSED) && event.getRegistrations().size() == event.getMaxParticipants()) {
+                event.setStatus(EventStatus.PUBLISHED);
+                eventRepository.save(event);
+            }
+
+            ticketService.cancelTicket(event.getId(), username);
+        }
+
+        registrationRepository.deleteAll(registrations);
     }
 }

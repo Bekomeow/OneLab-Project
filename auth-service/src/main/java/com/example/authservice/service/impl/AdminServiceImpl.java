@@ -1,11 +1,13 @@
 package com.example.authservice.service.impl;
 
+import com.example.authservice.dto.UserDeleteDto;
 import com.example.authservice.dto.UserResponse;
 import com.example.authservice.entity.User;
 import com.example.authservice.enums.Role;
 import com.example.authservice.repository.UserRepository;
 import com.example.authservice.service.AdminService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 public class AdminServiceImpl implements AdminService {
 
     private final UserRepository userRepository;
+
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Transactional
     public void updateUserRole(String username, Role role, boolean addRole) {
@@ -43,9 +47,8 @@ public class AdminServiceImpl implements AdminService {
         userRepository.save(user);
     }
 
-
     @Transactional
-    public void deleteUser(String username) {
+    public void deleteUser(String username, String reason) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден: " + username));
 
@@ -53,7 +56,15 @@ public class AdminServiceImpl implements AdminService {
             throw new AccessDeniedException("Нельзя удалить администратора!");
         }
 
+        UserDeleteDto userDeleteDto = UserDeleteDto.builder()
+                .username(username)
+                .email(user.getEmail())
+                .reason(reason)
+                .build();
+
         userRepository.delete(user);
+
+        kafkaTemplate.send("auth.user.delete", userDeleteDto);
     }
 
     public List<UserResponse> getAllUsers() {

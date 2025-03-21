@@ -45,7 +45,6 @@ public class TicketServiceImpl implements TicketService {
         Ticket ticket = ticketRepository.findByEventIdAndUsername(eventId, username)
                 .orElseThrow(() -> new EntityNotFoundException("Билет не найден"));
 
-        ticket.setStatus(TicketStatus.CANCELLED);
-        ticketRepository.save(ticket);
+        ticketRepository.delete(ticket);
     }
 }

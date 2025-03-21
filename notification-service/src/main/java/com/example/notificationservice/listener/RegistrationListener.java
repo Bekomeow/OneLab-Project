@@ -23,8 +23,6 @@ public class RegistrationListener {
     )
     public void listen(@Payload EventRegistrationDto registration) {
 
-        System.out.println("Received event: " + registration);
-
         String subject = "Регистрации на событие: " + registration.getTitle();
         String body = String.format(
                 "Здравствуйте,\n\n" +

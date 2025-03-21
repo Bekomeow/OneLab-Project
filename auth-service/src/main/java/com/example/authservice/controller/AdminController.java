@@ -1,5 +1,6 @@
 package com.example.authservice.controller;
 
+import com.example.authservice.dto.DeleteUserRequest;
 import com.example.authservice.dto.UserResponse;
 import com.example.authservice.enums.Role;
 import com.example.authservice.service.AdminService;
@@ -31,9 +32,10 @@ public class AdminController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @DeleteMapping("/delete-user/{username}")
-    public ResponseEntity<String> deleteUser(@PathVariable String username) {
-        adminService.deleteUser(username);
+    @PostMapping("/delete-user/{username}")
+    public ResponseEntity<String> deleteUser(@PathVariable String username,
+                                             @RequestBody DeleteUserRequest request) {
+        adminService.deleteUser(username, request.getReason());
         return ResponseEntity.ok("Пользователь " + username + " удален.");
     }
 

@@ -9,4 +9,5 @@ public interface RegistrationService {
     Registration registerUserForEvent(Long eventId);
     void unregisterUserFromEvent(Long registrationId);
     List<RegistrationDTO> getRegistrationsByUser();
+    void deleteAllRegistrationsByUser(String Username);
 }

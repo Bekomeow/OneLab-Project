@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface AdminService {
     void updateUserRole(String username, Role role, boolean addRole);
-    void deleteUser(String username);
+    void deleteUser(String username, String reason);
     List<UserResponse> getAllUsers();
 }
