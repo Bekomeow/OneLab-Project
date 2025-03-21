@@ -1,7 +1,6 @@
 package com.example.eventmanagementservice.controller;
 
 import com.example.eventmanagementservice.dto.RegistrationDTO;
-import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.entity.Registration;
 import com.example.eventmanagementservice.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
