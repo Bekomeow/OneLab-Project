@@ -53,6 +53,8 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         ticketService.generateTicket(currentUserName, event);
 
+        registration = registrationRepository.save(registration);
+
         EventRegistrationDto eventRegistration = EventRegistrationDto.builder()
                 .email(userEmail)
                 .title(event.getTitle())
@@ -60,9 +62,10 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .date(event.getStartDate())
                 .maxParticipants(event.getMaxParticipants())
                 .build();
+
         kafkaTemplate.send("event.registration.created", eventRegistration);
 
-        return registrationRepository.save(registration);
+        return registration;
     }
 
     public void unregisterUserFromEvent(Long registrationId) {
@@ -118,12 +121,11 @@ public class RegistrationServiceImpl implements RegistrationService {
 
             if (event.getStatus().equals(EventStatus.REGISTRATION_CLOSED) && event.getRegistrations().size() == event.getMaxParticipants()) {
                 event.setStatus(EventStatus.PUBLISHED);
-                eventRepository.save(event);
             }
 
             ticketService.cancelTicket(event.getId(), username);
+            event.getRegistrations().remove(registration);
+            eventRepository.save(event);
         }
-
-        registrationRepository.deleteAll(registrations);
     }
 }
