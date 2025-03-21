@@ -6,7 +6,6 @@ import com.example.authservice.enums.Role;
 import com.example.authservice.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,21 +16,18 @@ import java.util.List;
 public class AdminController {
     private final AdminService adminService;
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/add-admin/{username}")
     public ResponseEntity<String> addAdmin(@PathVariable String username) {
         adminService.updateUserRole(username, Role.ADMIN, true);
         return ResponseEntity.ok("Пользователь " + username + " теперь администратор.");
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/add-moderator/{username}")
     public ResponseEntity<String> addModerator(@PathVariable String username) {
         adminService.updateUserRole(username, Role.MODERATOR, true);
         return ResponseEntity.ok("Пользователь " + username + " теперь модератор.");
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/delete-user/{username}")
     public ResponseEntity<String> deleteUser(@PathVariable String username,
                                              @RequestBody DeleteUserRequest request) {
@@ -39,7 +35,6 @@ public class AdminController {
         return ResponseEntity.ok("Пользователь " + username + " удален.");
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/update-role/{username}")
     public ResponseEntity<String> updateUserRole(
             @PathVariable String username,
@@ -52,7 +47,6 @@ public class AdminController {
         return ResponseEntity.ok("Роль " + role + " была " + action + " у пользователя " + username);
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(adminService.getAllUsers());

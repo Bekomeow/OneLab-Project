@@ -17,7 +17,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -109,8 +108,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         List<Registration> registrations = registrationRepository.findAllByUsername(username)
                 .stream().filter(registration ->
                         (registration.getEvent().getStatus().equals(EventStatus.PUBLISHED)
-                        || registration.getEvent().getStatus().equals(EventStatus.REGISTRATION_CLOSED)))
-                .collect(Collectors.toList());
+                                || registration.getEvent().getStatus().equals(EventStatus.REGISTRATION_CLOSED))).toList();
 
         if (registrations.isEmpty()) {
             throw new EntityNotFoundException("Регистрации для пользователя " + username + " не найдены");
