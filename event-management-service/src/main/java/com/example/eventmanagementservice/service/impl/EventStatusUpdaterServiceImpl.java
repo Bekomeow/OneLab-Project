@@ -1,8 +1,8 @@
 package com.example.eventmanagementservice.service.impl;
 
+import com.example.commonlibrary.enums.event.EventStatus;
+import com.example.commonlibrary.enums.event.TicketStatus;
 import com.example.eventmanagementservice.entity.Event;
-import com.example.eventmanagementservice.enums.EventStatus;
-import com.example.eventmanagementservice.enums.TicketStatus;
 import com.example.eventmanagementservice.repository.EventRepository;
 import com.example.eventmanagementservice.service.EventStatusUpdaterService;
 import jakarta.transaction.Transactional;

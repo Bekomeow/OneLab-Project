@@ -1,6 +1,7 @@
 package com.example.eventmanagementservice.entity;
 
-import com.example.eventmanagementservice.enums.EventStatus;
+import com.example.commonlibrary.enums.event.EventFormat;
+import com.example.commonlibrary.enums.event.EventStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,6 +36,16 @@ public class Event {
 
     @Column(nullable = false)
     private int maxParticipants;
+
+    @Column(name = "available_seats", nullable = false)
+    private int availableSeats;
+
+    @Column(name = "location")
+    private String location;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "event_format", nullable = false)
+    private EventFormat eventFormat;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

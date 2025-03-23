@@ -1,13 +1,13 @@
 package com.example.authservice.service;
 
-import com.example.authservice.dto.AuthRequest;
-import com.example.authservice.dto.AuthResponse;
-import com.example.authservice.dto.RegisterRequest;
 import com.example.authservice.entity.User;
-import com.example.authservice.enums.Role;
 import com.example.authservice.repository.UserRepository;
 import com.example.authservice.security.JwtUtil;
 import com.example.authservice.service.impl.AuthServiceImpl;
+import com.example.commonlibrary.dto.auth.AuthRequest;
+import com.example.commonlibrary.dto.auth.AuthResponse;
+import com.example.commonlibrary.dto.auth.RegisterRequest;
+import com.example.commonlibrary.enums.auth.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

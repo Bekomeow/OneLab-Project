@@ -1,7 +1,6 @@
 package com.example.eventmanagementservice.controller;
 
-import com.example.eventmanagementservice.dto.RegistrationDTO;
-import com.example.eventmanagementservice.entity.Event;
+import com.example.commonlibrary.dto.event.EventRegisterResponse;
 import com.example.eventmanagementservice.entity.Registration;
 import com.example.eventmanagementservice.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,7 @@ public class RegistrationController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<RegistrationDTO>> registrationsByUser() {
+    public ResponseEntity<List<EventRegisterResponse>> registrationsByUser() {
         return ResponseEntity.ok(registrationService.getRegistrationsByUser());
     }
 }

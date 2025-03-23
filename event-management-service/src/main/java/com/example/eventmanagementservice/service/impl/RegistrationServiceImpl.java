@@ -1,10 +1,11 @@
 package com.example.eventmanagementservice.service.impl;
 
-import com.example.eventmanagementservice.dto.EventRegistrationDto;
-import com.example.eventmanagementservice.dto.RegistrationDTO;
+import com.example.commonlibrary.dto.event.EventRegisterResponse;
+import com.example.commonlibrary.dto.event.EventRegistrationDto;
+import com.example.commonlibrary.dto.event.EventSearchDto;
+import com.example.commonlibrary.enums.event.EventStatus;
 import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.entity.Registration;
-import com.example.eventmanagementservice.enums.EventStatus;
 import com.example.eventmanagementservice.repository.EventRepository;
 import com.example.eventmanagementservice.repository.RegistrationRepository;
 import com.example.eventmanagementservice.security.SecurityUtil;
@@ -26,7 +27,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RegistrationRepository registrationRepository;
     private final EventRepository eventRepository;
     private final TicketService ticketService;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, Object> jsonKafkaTemplate;
     private final SecurityUtil securityUtil;
 
     public Registration registerUserForEvent(Long eventId) {
@@ -37,10 +38,21 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new IllegalStateException("Регистрация на это мероприятие закрыта");
         }
 
-        if (event.getRegistrations().size() + 1 >= event.getMaxParticipants()) {
+        if (event.getAvailableSeats() <= 1) {
             event.setStatus(EventStatus.REGISTRATION_CLOSED);
-            eventRepository.save(event);
+        } else {
+            event.setAvailableSeats(event.getAvailableSeats() - 1);
         }
+
+        eventRepository.save(event);
+
+        EventSearchDto eventSearchDto = EventSearchDto.builder()
+                .eventId(event.getId())
+                .status(event.getStatus())
+                .availableSeats(event.getAvailableSeats())
+                .build();
+
+        jsonKafkaTemplate.send("event.updated", eventSearchDto);
 
         String currentUserName = securityUtil.getCurrentUsername()
                 .orElseThrow(() -> new IllegalStateException("Пользователь не авторизован"));;
@@ -62,7 +74,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .maxParticipants(event.getMaxParticipants())
                 .build();
 
-        kafkaTemplate.send("event.registration.created", eventRegistration);
+        jsonKafkaTemplate.send("event.registration.created", eventRegistration);
 
         return registration;
     }
@@ -80,23 +92,28 @@ public class RegistrationServiceImpl implements RegistrationService {
         String currentUserName = securityUtil.getCurrentUsername()
                 .orElseThrow(() -> new IllegalStateException("Пользователь не авторизован"));
 
-        if (event.getRegistrations().size() == event.getMaxParticipants()) {
-            event.setStatus(EventStatus.PUBLISHED);
-            eventRepository.save(event);
-        }
+        event.setAvailableSeats(event.getAvailableSeats() + 1);
+        eventRepository.save(event);
 
         ticketService.cancelTicket(registration.getEvent().getId(), currentUserName);
 
         registrationRepository.delete(registration);
+
+        EventSearchDto eventSearchDto = EventSearchDto.builder()
+                .eventId(event.getId())
+                .availableSeats(event.getAvailableSeats())
+                .build();
+
+        jsonKafkaTemplate.send("event.updated", eventSearchDto);
     }
 
-    public List<RegistrationDTO> getRegistrationsByUser() {
+    public List<EventRegisterResponse> getRegistrationsByUser() {
         String currentUserName = securityUtil.getCurrentUsername()
                 .orElseThrow(() -> new IllegalStateException("Пользователь не авторизован"));
 
         return registrationRepository.findAllByUsername(currentUserName)
                 .stream().map(
-                        registration -> RegistrationDTO.builder()
+                        registration -> EventRegisterResponse.builder()
                         .id(registration.getId())
                         .username(registration.getUsername())
                         .eventTitle(registration.getEvent().getTitle())
@@ -117,13 +134,17 @@ public class RegistrationServiceImpl implements RegistrationService {
         for (Registration registration : registrations) {
             Event event = registration.getEvent();
 
-            if (event.getStatus().equals(EventStatus.REGISTRATION_CLOSED) && event.getRegistrations().size() == event.getMaxParticipants()) {
-                event.setStatus(EventStatus.PUBLISHED);
-            }
-
             ticketService.cancelTicket(event.getId(), username);
             event.getRegistrations().remove(registration);
+            event.setAvailableSeats(event.getAvailableSeats() + 1);
             eventRepository.save(event);
+
+            EventSearchDto eventSearchDto = EventSearchDto.builder()
+                    .eventId(event.getId())
+                    .availableSeats(event.getAvailableSeats())
+                    .build();
+
+            jsonKafkaTemplate.send("event.updated", eventSearchDto);
         }
     }
 }

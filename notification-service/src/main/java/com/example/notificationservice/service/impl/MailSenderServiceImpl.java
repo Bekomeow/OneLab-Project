@@ -1,7 +1,7 @@
 package com.example.notificationservice.service.impl;
 
+import com.example.commonlibrary.enums.notification.NotificationStatus;
 import com.example.notificationservice.entity.NotificationLog;
-import com.example.notificationservice.enums.NotificationStatus;
 import com.example.notificationservice.repository.NotificationLogRepository;
 import com.example.notificationservice.service.MailSenderService;
 import jakarta.transaction.Transactional;

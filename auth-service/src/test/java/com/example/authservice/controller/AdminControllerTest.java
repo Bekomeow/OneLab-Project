@@ -1,9 +1,9 @@
 package com.example.authservice.controller;
 
-import com.example.authservice.dto.DeleteUserRequest;
-import com.example.authservice.dto.UserResponse;
-import com.example.authservice.enums.Role;
 import com.example.authservice.service.AdminService;
+import com.example.commonlibrary.dto.auth.DeleteUserRequest;
+import com.example.commonlibrary.dto.auth.UserResponse;
+import com.example.commonlibrary.enums.auth.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
 package com.example.eventmanagementservice.listener;
 
-import com.example.eventmanagementservice.dto.UserDeleteDto;
+import com.example.commonlibrary.dto.auth.UserDeleteDto;
 import com.example.eventmanagementservice.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

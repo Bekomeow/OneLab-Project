@@ -1,10 +1,11 @@
 package com.example.eventmanagementservice.service.impl;
 
-import com.example.eventmanagementservice.dto.EventDTO;
-import com.example.eventmanagementservice.dto.EventStatusDto;
-import com.example.eventmanagementservice.dto.EventUpdateDTO;
+import com.example.commonlibrary.dto.event.EventDTO;
+import com.example.commonlibrary.dto.event.EventSearchDto;
+import com.example.commonlibrary.dto.event.EventStatusDto;
+import com.example.commonlibrary.dto.event.EventUpdateDTO;
+import com.example.commonlibrary.enums.event.EventStatus;
 import com.example.eventmanagementservice.entity.Event;
-import com.example.eventmanagementservice.enums.EventStatus;
 import com.example.eventmanagementservice.repository.EventRepository;
 import com.example.eventmanagementservice.search.searchService.EventSearchService;
 import com.example.eventmanagementservice.security.SecurityUtil;
@@ -17,6 +18,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -30,7 +32,8 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final EventSearchService eventSearchService;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, Object> jsonKafkaTemplate;
+    private final KafkaTemplate<String, Long> longKafkaTemplate;
     private final SecurityUtil securityUtil;
 
     @Transactional
@@ -53,15 +56,27 @@ public class EventServiceImpl implements EventService {
                 .maxParticipants(eventDto.getMaxParticipants())
                 .status(EventStatus.DRAFT)
                 .organizerName(organizer)
+                .eventFormat(eventDto.getEventFormat())
+                .location(eventDto.getLocation())
+                .availableSeats(eventDto.getMaxParticipants())
                 .build();
 
         event = eventRepository.save(event);
 
-        try {
-            eventSearchService.indexEvent(event);
-        } catch (Exception e) {
-            throw new RuntimeException("Не удалось сохранить событие в поисковый индекс", e);
-        }
+        EventSearchDto eventSearchDto = EventSearchDto.builder()
+                .eventId(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .location(event.getLocation())
+                .eventFormat(event.getEventFormat())
+                .status(event.getStatus())
+                .maxParticipants(event.getMaxParticipants())
+                .availableSeats(event.getAvailableSeats())
+                .startDate(event.getStartDate().atZone(ZoneId.systemDefault()).toInstant())
+                .endDate(event.getEndDate().atZone(ZoneId.systemDefault()).toInstant())
+                .build();
+
+        jsonKafkaTemplate.send("event.created", eventSearchDto);
 
         return event;
     }
@@ -71,6 +86,17 @@ public class EventServiceImpl implements EventService {
                 .map(event -> {
                     event.setTitle(eventDto.getTitle());
                     event.setDescription(eventDto.getDescription());
+
+                    eventSearchService.indexEvent(event);
+
+                    EventSearchDto eventSearchDto = EventSearchDto.builder()
+                            .eventId(event.getId())
+                            .title(event.getTitle())
+                            .description(event.getDescription())
+                            .build();
+
+                    jsonKafkaTemplate.send("event.updated", eventSearchDto);
+
                     return eventRepository.save(event);
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + id));
@@ -98,13 +124,22 @@ public class EventServiceImpl implements EventService {
                 .status("PUBLISHED")
                 .build();
 
-        kafkaTemplate.send("event.status.notification", notification);
+        EventSearchDto eventSearchDto = EventSearchDto.builder()
+                .eventId(event.getId())
+                .status(event.getStatus())
+                .build();
 
+        jsonKafkaTemplate.send("event.status.notification", notification);
+        jsonKafkaTemplate.send("event.updated", eventSearchDto);
     }
 
     public void cancelEvent(Long eventId, String reason) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Мероприятие не найдено"));
+
+        if (event.getStatus() != EventStatus.COMPLETED) {
+            throw new IllegalStateException("Событие уже завершено.");
+        }
 
         if (securityUtil.getCurrentUsername().orElse("").equals(event.getOrganizerName()) || securityUtil.hasRole("ROLE_MODERATOR")) {
             event.setStatus(EventStatus.CANCELLED);
@@ -122,7 +157,8 @@ public class EventServiceImpl implements EventService {
                     .reason(reason)
                     .build();
 
-            kafkaTemplate.send("event.status.notification", notification);
+            jsonKafkaTemplate.send("event.status.notification", notification);
+            longKafkaTemplate.send("event.deleted", event.getId());
         } else {
             throw new AccessDeniedException("Недостаточно прав для отмены мероприятия");
         }
@@ -134,7 +170,15 @@ public class EventServiceImpl implements EventService {
 
         if (securityUtil.getCurrentUsername().orElse("").equals(event.getOrganizerName())) {
             event.setStatus(EventStatus.REGISTRATION_CLOSED);
+            event.setAvailableSeats(0);
             eventRepository.save(event);
+
+            EventSearchDto eventSearchDto = EventSearchDto.builder()
+                    .eventId(event.getId())
+                    .status(event.getStatus())
+                    .build();
+
+            jsonKafkaTemplate.send("event.updated", eventSearchDto);
         } else {
             throw new AccessDeniedException("Недостаточно прав для отмены мероприятия");
         }
@@ -151,6 +195,8 @@ public class EventServiceImpl implements EventService {
         if (securityUtil.getCurrentUsername().orElse("").equals(event.getOrganizerName())) {
             event.setStatus(EventStatus.COMPLETED);
             eventRepository.save(event);
+
+            longKafkaTemplate.send("event.deleted", event.getId());
         } else {
             throw new AccessDeniedException("Недостаточно прав для отмены мероприятия");
         }

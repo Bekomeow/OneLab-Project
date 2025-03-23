@@ -1,7 +1,7 @@
 package com.example.notificationservice.listener;
 
-import com.example.notificationservice.dto.EventRegistrationDto;
-import com.example.notificationservice.dto.EventStatusDto;
+import com.example.commonlibrary.dto.event.EventRegistrationDto;
+import com.example.commonlibrary.dto.event.EventStatusDto;
 import com.example.notificationservice.service.MailSenderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

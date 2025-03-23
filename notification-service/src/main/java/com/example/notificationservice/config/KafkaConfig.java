@@ -1,8 +1,8 @@
 package com.example.notificationservice.config;
 
-import com.example.notificationservice.dto.EventRegistrationDto;
-import com.example.notificationservice.dto.EventStatusDto;
-import com.example.notificationservice.dto.UserDeleteDto;
+import com.example.commonlibrary.dto.auth.UserDeleteDto;
+import com.example.commonlibrary.dto.event.EventRegistrationDto;
+import com.example.commonlibrary.dto.event.EventStatusDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -105,6 +105,4 @@ public class KafkaConfig {
         factory.setConsumerFactory(userDeleteConsumerFactory());
         return factory;
     }
-
-
 }

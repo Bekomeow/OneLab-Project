@@ -1,10 +1,10 @@
 package com.example.eventmanagementservice.controller;
 
-import com.example.eventmanagementservice.dto.CancelEventRequest;
-import com.example.eventmanagementservice.dto.EventDTO;
-import com.example.eventmanagementservice.dto.EventUpdateDTO;
+import com.example.commonlibrary.dto.event.CancelEventRequest;
+import com.example.commonlibrary.dto.event.EventDTO;
+import com.example.commonlibrary.dto.event.EventUpdateDTO;
+import com.example.commonlibrary.enums.event.EventStatus;
 import com.example.eventmanagementservice.entity.Event;
-import com.example.eventmanagementservice.enums.EventStatus;
 import com.example.eventmanagementservice.search.searchService.EventSearchService;
 import com.example.eventmanagementservice.service.EventService;
 import lombok.RequiredArgsConstructor;
@@ -73,19 +73,19 @@ public class EventController {
         return ResponseEntity.ok(eventService.getDraftEvents());
     }
 
-    @GetMapping("/filter")
-    public List<Event> filterEvents(@RequestParam Map<String, String> filters) {
-        List<Long> eventIds = eventSearchService.searchByFilters(filters);
-        return eventService.findEventsByIds(eventIds);
-    }
-
-    @GetMapping("/filter/date")
-    public List<Event> filterEventsByDate(
-            @RequestParam(required = false) LocalDateTime fromDate,
-            @RequestParam(required = false) LocalDateTime toDate) {
-        List<Long> eventIds = eventSearchService.searchByDateRange(fromDate, toDate);
-        return eventService.findEventsByIds(eventIds);
-    }
+//    @GetMapping("/filter")
+//    public List<Event> filterEvents(@RequestParam Map<String, String> filters) {
+//        List<Long> eventIds = eventSearchService.searchByFilters(filters);
+//        return eventService.findEventsByIds(eventIds);
+//    }
+//
+//    @GetMapping("/filter/date")
+//    public List<Event> filterEventsByDate(
+//            @RequestParam(required = false) LocalDateTime fromDate,
+//            @RequestParam(required = false) LocalDateTime toDate) {
+//        List<Long> eventIds = eventSearchService.searchByDateRange(fromDate, toDate);
+//        return eventService.findEventsByIds(eventIds);
+//    }
 
     @GetMapping("/stream/most-popular")
     public ResponseEntity<Event> getMostPopularEvent() {

@@ -1,6 +1,5 @@
 package com.example.eventmanagementservice.search.searchRepository;
 
-
 import com.example.eventmanagementservice.search.document.EventDocument;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;

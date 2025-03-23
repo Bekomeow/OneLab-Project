@@ -1,6 +1,6 @@
 package com.example.notificationservice.listener;
 
-import com.example.notificationservice.dto.UserDeleteDto;
+import com.example.commonlibrary.dto.auth.UserDeleteDto;
 import com.example.notificationservice.service.MailSenderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

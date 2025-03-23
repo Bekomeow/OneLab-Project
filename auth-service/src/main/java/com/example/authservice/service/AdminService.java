@@ -1,7 +1,7 @@
 package com.example.authservice.service;
 
-import com.example.authservice.dto.UserResponse;
-import com.example.authservice.enums.Role;
+import com.example.commonlibrary.dto.auth.UserResponse;
+import com.example.commonlibrary.enums.auth.Role;
 
 import java.util.List;
 

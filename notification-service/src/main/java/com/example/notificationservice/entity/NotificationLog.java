@@ -1,6 +1,6 @@
 package com.example.notificationservice.entity;
 
-import com.example.notificationservice.enums.NotificationStatus;
+import com.example.commonlibrary.enums.notification.NotificationStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;

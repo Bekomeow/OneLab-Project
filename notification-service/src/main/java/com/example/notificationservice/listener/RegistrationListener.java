@@ -1,6 +1,6 @@
 package com.example.notificationservice.listener;
 
-import com.example.notificationservice.dto.EventRegistrationDto;
+import com.example.commonlibrary.dto.event.EventRegistrationDto;
 import com.example.notificationservice.service.MailSenderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

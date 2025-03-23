@@ -1,9 +1,9 @@
 package com.example.eventmanagementservice.service;
 
-import com.example.eventmanagementservice.dto.EventDTO;
-import com.example.eventmanagementservice.dto.EventUpdateDTO;
+import com.example.commonlibrary.dto.event.EventDTO;
+import com.example.commonlibrary.dto.event.EventUpdateDTO;
+import com.example.commonlibrary.enums.event.EventStatus;
 import com.example.eventmanagementservice.entity.Event;
-import com.example.eventmanagementservice.enums.EventStatus;
 
 import java.util.List;
 import java.util.Map;

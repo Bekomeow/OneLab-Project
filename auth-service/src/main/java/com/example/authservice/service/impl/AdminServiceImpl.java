@@ -1,11 +1,11 @@
 package com.example.authservice.service.impl;
 
-import com.example.authservice.dto.UserDeleteDto;
-import com.example.authservice.dto.UserResponse;
 import com.example.authservice.entity.User;
-import com.example.authservice.enums.Role;
 import com.example.authservice.repository.UserRepository;
 import com.example.authservice.service.AdminService;
+import com.example.commonlibrary.dto.auth.UserDeleteDto;
+import com.example.commonlibrary.dto.auth.UserResponse;
+import com.example.commonlibrary.enums.auth.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;

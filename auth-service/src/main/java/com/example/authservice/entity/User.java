@@ -1,6 +1,6 @@
 package com.example.authservice.entity;
 
-import com.example.authservice.enums.Role;
+import com.example.commonlibrary.enums.auth.Role;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

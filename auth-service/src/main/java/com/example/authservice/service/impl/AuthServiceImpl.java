@@ -1,13 +1,13 @@
 package com.example.authservice.service.impl;
 
-import com.example.authservice.dto.AuthRequest;
-import com.example.authservice.dto.AuthResponse;
-import com.example.authservice.dto.RegisterRequest;
 import com.example.authservice.entity.User;
-import com.example.authservice.enums.Role;
 import com.example.authservice.repository.UserRepository;
 import com.example.authservice.security.JwtUtil;
 import com.example.authservice.service.AuthService;
+import com.example.commonlibrary.dto.auth.AuthRequest;
+import com.example.commonlibrary.dto.auth.AuthResponse;
+import com.example.commonlibrary.dto.auth.RegisterRequest;
+import com.example.commonlibrary.enums.auth.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

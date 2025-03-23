@@ -1,7 +1,7 @@
 package com.example.eventmanagementservice.repository;
 
+import com.example.commonlibrary.enums.event.EventStatus;
 import com.example.eventmanagementservice.entity.Event;
-import com.example.eventmanagementservice.enums.EventStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -3,8 +3,8 @@
 //import static org.assertj.core.api.Assertions.*;
 //import static org.mockito.Mockito.*;
 //
-//import com.example.eventmanagementservice.dto.EventDTO;
-//import com.example.eventmanagementservice.dto.EventStatusDto;
+//import com.example.commonlibrary.dto.event.EventDTO;
+//import com.example.commonlibrary.dto.event.EventStatusDto;
 //import com.example.eventmanagementservice.entity.Event;
 //import com.example.eventmanagementservice.enums.EventStatus;
 //import com.example.eventmanagementservice.repository.EventRepository;

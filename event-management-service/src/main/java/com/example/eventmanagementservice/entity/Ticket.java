@@ -1,6 +1,6 @@
 package com.example.eventmanagementservice.entity;
 
-import com.example.eventmanagementservice.enums.TicketStatus;
+import com.example.commonlibrary.enums.event.TicketStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

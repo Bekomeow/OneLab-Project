@@ -22,4 +22,10 @@
                  splitStatements="true"/>
     </changeSet>
 
+    <changeSet author="Beko" id="4">
+        <sqlFile path="classpath:db/changelog/migration/V4__alter_table_events.sql"
+                 relativeToChangelogFile="false"
+                 splitStatements="true"/>
+    </changeSet>
+
 </databaseChangeLog>

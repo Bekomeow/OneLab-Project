@@ -1,5 +1,6 @@
 package com.example.eventmanagementservice.search.document;
 
+import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -27,3 +28,4 @@ public class EventDocument {
     @Field(type = FieldType.Date, format = DateFormat.epoch_millis)
     private Instant date;
 }
+

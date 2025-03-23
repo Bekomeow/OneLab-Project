@@ -1,8 +1,8 @@
 package com.example.authservice.security;
 
 import com.example.authservice.entity.User;
-import com.example.authservice.enums.Role;
 import com.example.authservice.repository.UserRepository;
+import com.example.commonlibrary.enums.auth.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;

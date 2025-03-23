@@ -1,8 +1,8 @@
 package com.example.eventmanagementservice.service.impl;
 
+import com.example.commonlibrary.enums.event.TicketStatus;
 import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.entity.Ticket;
-import com.example.eventmanagementservice.enums.TicketStatus;
 import com.example.eventmanagementservice.repository.TicketRepository;
 import com.example.eventmanagementservice.service.TicketService;
 import jakarta.persistence.EntityNotFoundException;

@@ -1,10 +1,10 @@
 package com.example.authservice.service;
 
-import com.example.authservice.dto.UserResponse;
 import com.example.authservice.entity.User;
-import com.example.authservice.enums.Role;
 import com.example.authservice.repository.UserRepository;
 import com.example.authservice.service.impl.AdminServiceImpl;
+import com.example.commonlibrary.dto.auth.UserResponse;
+import com.example.commonlibrary.enums.auth.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
