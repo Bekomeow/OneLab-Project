@@ -16,6 +16,8 @@ public interface EventService {
     void cancelEvent(Long eventId, String reason);
     void closeRegistration(Long eventId);
     void completeEvent(Long eventId);
+    void expandMaxParticipants(Long eventId, int additionalSeats);
+    void trimToSize(Long eventId);
     List<Event> getUpcomingEvents();
     List<Event> getDraftEvents();
     boolean eventExists(Long eventId);

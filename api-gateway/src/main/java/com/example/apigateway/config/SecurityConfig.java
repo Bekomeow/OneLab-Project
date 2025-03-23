@@ -21,6 +21,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, "/auth/admin/**").hasAuthority("ROLE_ADMIN")
                         .pathMatchers("/auth/**").permitAll()
                         .pathMatchers(HttpMethod.POST, "/events").hasAuthority("ROLE_USER")
+                        .pathMatchers(HttpMethod.POST, "/events/{eventId}/expand", "/events/{eventId}/trim-to-size").hasAuthority("ROLE_USER")
                         .pathMatchers(HttpMethod.PUT, "/events").hasAuthority("ROLE_USER")
                         .pathMatchers(HttpMethod.POST, "/events/{eventId}/publish").hasAuthority("ROLE_USER")
                         .pathMatchers(HttpMethod.POST, "/events/{eventId}/cancel").hasAnyAuthority("ROLE_ADMIN", "ROLE_MODERATOR", "ROLE_USER")

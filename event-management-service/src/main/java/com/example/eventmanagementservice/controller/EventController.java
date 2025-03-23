@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +51,20 @@ public class EventController {
     @PostMapping("/{eventId}/complete")
     public ResponseEntity<Void> completeEvent(@PathVariable Long eventId) {
         eventService.completeEvent(eventId);
+        return ResponseEntity.noContent().build();
+    }
+
+    //FOR EVENT OWNER
+    @PostMapping("/{eventId}/expand")
+    public ResponseEntity<Void> expandMaxParticipants(@PathVariable Long eventId, @RequestParam int additionalSeats) {
+        eventService.expandMaxParticipants(eventId, additionalSeats);
+        return ResponseEntity.noContent().build();
+    }
+
+    //FOR EVENT OWNER
+    @PostMapping("/{eventId}/trim-to-size")
+    public ResponseEntity<Void> trimToSize(@PathVariable Long eventId) {
+        eventService.trimToSize(eventId);
         return ResponseEntity.noContent().build();
     }
 

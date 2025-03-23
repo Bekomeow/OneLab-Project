@@ -137,7 +137,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Мероприятие не найдено"));
 
-        if (event.getStatus() != EventStatus.COMPLETED) {
+        if (!event.getStatus().equals(EventStatus.COMPLETED)) {
             throw new IllegalStateException("Событие уже завершено.");
         }
 
@@ -188,7 +188,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Мероприятие не найдено"));
 
-        if (event.getStatus() != EventStatus.IN_PROGRESS) {
+        if (!event.getStatus().equals(EventStatus.IN_PROGRESS)) {
             throw new IllegalStateException("Только текущие события можно завершить вручную.");
         }
 
@@ -201,6 +201,52 @@ public class EventServiceImpl implements EventService {
             throw new AccessDeniedException("Недостаточно прав для отмены мероприятия");
         }
     }
+
+    public void expandMaxParticipants(Long eventId, int additionalSeats) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Мероприятие не найдено"));
+
+        if (!(event.getStatus().equals(EventStatus.PUBLISHED) || event.getStatus().equals(EventStatus.REGISTRATION_CLOSED))) {
+            throw new IllegalStateException("Только для опубликованного события можно расширить максимальное количество участников.");
+        }
+
+        if (securityUtil.getCurrentUsername().orElse("").equals(event.getOrganizerName())) {
+
+            if (additionalSeats < 1) {
+                throw new IllegalArgumentException("Additional seats must be greater than 0");
+            }
+
+            if (event.getStatus().equals(EventStatus.REGISTRATION_CLOSED)) {
+                event.setStatus(EventStatus.PUBLISHED);
+            }
+
+            event.setMaxParticipants(event.getMaxParticipants() + additionalSeats);
+            event.setAvailableSeats(event.getAvailableSeats() + additionalSeats);
+            eventRepository.save(event);
+        } else {
+            throw new AccessDeniedException("Недостаточно прав для расширение максимального количество участников.");
+        }
+    }
+
+    public void trimToSize(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Мероприятие не найдено"));
+
+        if (!event.getStatus().equals(EventStatus.PUBLISHED)) {
+            throw new IllegalStateException("Только для опубликованного события можно сузить максимальное количество участников до количества зарегистрированных участников.");
+        }
+
+        if (securityUtil.getCurrentUsername().orElse("").equals(event.getOrganizerName())) {
+            int currentParticipants = event.getMaxParticipants() - event.getAvailableSeats();
+            event.setMaxParticipants(currentParticipants);
+            event.setAvailableSeats(0);
+            event.setStatus(EventStatus.REGISTRATION_CLOSED);
+            eventRepository.save(event);
+        } else {
+            throw new AccessDeniedException("Недостаточно прав для расширение максимального количество участников.");
+        }
+    }
+
 
     public List<Event> getUpcomingEvents() {
         List<EventStatus> excludedStatuses = List.of(EventStatus.DRAFT, EventStatus.IN_PROGRESS, EventStatus.COMPLETED, EventStatus.CANCELLED);
