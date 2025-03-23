@@ -1,9 +1,9 @@
 package com.example.authservice.controller;
 
-import com.example.authservice.dto.AuthRequest;
-import com.example.authservice.dto.AuthResponse;
-import com.example.authservice.dto.RegisterRequest;
 import com.example.authservice.service.AuthService;
+import com.example.commonlibrary.dto.auth.AuthRequest;
+import com.example.commonlibrary.dto.auth.AuthResponse;
+import com.example.commonlibrary.dto.auth.RegisterRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
