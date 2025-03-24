@@ -48,4 +48,10 @@ public class SecurityUtil {
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch(role::equals);
     }
+
+    public String getAuthToken() {
+        return Optional.ofNullable(jwtUtil.getCurrentToken())
+                .filter(t -> !t.isBlank())
+                .orElseThrow(() -> new IllegalStateException("JWT Token не найден"));
+    }
 }

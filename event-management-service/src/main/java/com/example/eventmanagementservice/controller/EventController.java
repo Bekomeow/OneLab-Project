@@ -3,6 +3,7 @@ package com.example.eventmanagementservice.controller;
 import com.example.commonlibrary.dto.event.CancelEventRequest;
 import com.example.commonlibrary.dto.event.EventDTO;
 import com.example.commonlibrary.dto.event.EventUpdateDTO;
+import com.example.commonlibrary.enums.event.EventFormat;
 import com.example.commonlibrary.enums.event.EventStatus;
 import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.search.searchService.EventSearchService;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -75,30 +77,11 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/upcoming")
-    public ResponseEntity<List<Event>> getUpcomingEvents() {
-        return ResponseEntity.ok(eventService.getUpcomingEvents());
-    }
-
     //FOR MODERATOR ONLY
     @GetMapping("/drafts")
     public ResponseEntity<List<Event>> getDraftEvents() {
         return ResponseEntity.ok(eventService.getDraftEvents());
     }
-
-//    @GetMapping("/filter")
-//    public List<Event> filterEvents(@RequestParam Map<String, String> filters) {
-//        List<Long> eventIds = eventSearchService.searchByFilters(filters);
-//        return eventService.findEventsByIds(eventIds);
-//    }
-//
-//    @GetMapping("/filter/date")
-//    public List<Event> filterEventsByDate(
-//            @RequestParam(required = false) LocalDateTime fromDate,
-//            @RequestParam(required = false) LocalDateTime toDate) {
-//        List<Long> eventIds = eventSearchService.searchByDateRange(fromDate, toDate);
-//        return eventService.findEventsByIds(eventIds);
-//    }
 
     @GetMapping("/stream/most-popular")
     public ResponseEntity<Event> getMostPopularEvent() {
@@ -113,6 +96,49 @@ public class EventController {
     @GetMapping("/stream/partitioned")
     public ResponseEntity<Map<Boolean, List<Event>>> getPartitionedEvents() {
         return ResponseEntity.ok(eventService.partitionEventsByDate());
+    }
+
+
+    // === CATALOG METHODS ===
+
+    @GetMapping("/catalog/search")
+    public ResponseEntity<List<Event>> searchByKeywordCatalog(@RequestParam String keyword) {
+        return ResponseEntity.ok(eventService.searchByKeyword(keyword));
+    }
+
+    @GetMapping("/catalog/filter")
+    public ResponseEntity<List<Event>> filterByStatusFormatLocationCatalog(
+            @RequestParam(required = false) EventStatus status,
+            @RequestParam(required = false) EventFormat format,
+            @RequestParam(required = false) String location) {
+        return ResponseEntity.ok(eventService.filterByStatusFormatLocation(status, format, location));
+    }
+
+    @GetMapping("/catalog/date-range")
+    public ResponseEntity<List<Event>> findEventsInDateRangeCatalog(
+            @RequestParam Instant from,
+            @RequestParam Instant to) {
+        return ResponseEntity.ok(eventService.findEventsInDateRange(from, to));
+    }
+
+    @GetMapping("/catalog/available-seats")
+    public ResponseEntity<List<Event>> findEventsWithAvailableSeatsCatalog(@RequestParam int minSeats) {
+        return ResponseEntity.ok(eventService.findEventsWithAvailableSeats(minSeats));
+    }
+
+    @GetMapping("/catalog/upcoming")
+    public ResponseEntity<List<Event>> getUpcomingEventsCatalog() {
+        return ResponseEntity.ok(eventService.getUpcomingEvents());
+    }
+
+    @GetMapping("/catalog/aggregation")
+    public ResponseEntity<Object> getEventsPerDateAggregationCatalog() {
+        return ResponseEntity.ok(eventService.getEventsPerDateAggregation());
+    }
+
+    @GetMapping("/catalog/popular")
+    public ResponseEntity<List<Event>> getMostPopularEventsCatalog() {
+        return ResponseEntity.ok(eventService.getMostPopularEvents());
     }
 }
 

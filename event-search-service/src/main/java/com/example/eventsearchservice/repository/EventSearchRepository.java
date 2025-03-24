@@ -21,7 +21,7 @@ public interface EventSearchRepository extends ElasticsearchRepository<EventDocu
 
     List<EventDocument> findByAvailableSeatsGreaterThan(int minSeats);
 
-    List<EventDocument> findByStartDateAfterOrderByStartDateAsc(Instant now);
+    List<EventDocument> findByStartDateAfterAndStatusOrderByStartDateAsc(Instant startDate, EventStatus status);
 
     @Query("""
         {

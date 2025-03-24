@@ -4,7 +4,9 @@ import com.example.commonlibrary.dto.event.EventDTO;
 import com.example.commonlibrary.dto.event.EventSearchDto;
 import com.example.commonlibrary.dto.event.EventStatusDto;
 import com.example.commonlibrary.dto.event.EventUpdateDTO;
+import com.example.commonlibrary.enums.event.EventFormat;
 import com.example.commonlibrary.enums.event.EventStatus;
+import com.example.eventmanagementservice.client.EventSearchClient;
 import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.repository.EventRepository;
 import com.example.eventmanagementservice.search.searchService.EventSearchService;
@@ -17,6 +19,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -34,6 +37,7 @@ public class EventServiceImpl implements EventService {
     private final EventSearchService eventSearchService;
     private final KafkaTemplate<String, Object> jsonKafkaTemplate;
     private final KafkaTemplate<String, Long> longKafkaTemplate;
+    private final EventSearchClient eventSearchClient;
     private final SecurityUtil securityUtil;
 
     @Transactional
@@ -247,12 +251,6 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-
-    public List<Event> getUpcomingEvents() {
-        List<EventStatus> excludedStatuses = List.of(EventStatus.DRAFT, EventStatus.IN_PROGRESS, EventStatus.COMPLETED, EventStatus.CANCELLED);
-        return eventRepository.findUpcomingEvents(excludedStatuses);
-    }
-
     public List<Event> getDraftEvents() {
         return eventRepository.findAllByStatusAndStartDateAfter(EventStatus.DRAFT, LocalDateTime.now());
     }
@@ -280,5 +278,48 @@ public class EventServiceImpl implements EventService {
     public Map<Boolean, List<Event>> partitionEventsByDate() {
         return eventRepository.findAll().stream()
                 .collect(Collectors.partitioningBy(event -> event.getStartDate().isAfter(LocalDateTime.now())));
+    }
+
+
+//    SEARCH SERVICE METHODS
+    public List<Event> searchByKeyword(String keyword) {
+        String token = securityUtil.getAuthToken();
+        List<Long> eventIds = eventSearchClient.searchByKeyword(keyword, token);
+        return eventRepository.findAllByIdIn(eventIds);
+    }
+
+    public List<Event> filterByStatusFormatLocation(EventStatus status, EventFormat format, String location) {
+        String token = securityUtil.getAuthToken();
+        List<Long> eventIds = eventSearchClient.filterByStatusFormatLocation(status, format, location, token);
+        return eventRepository.findAllByIdIn(eventIds);
+    }
+
+    public List<Event> findEventsInDateRange(Instant from, Instant to) {
+        String token = securityUtil.getAuthToken();
+        List<Long> eventIds = eventSearchClient.findEventsInDateRange(from, to, token);
+        return eventRepository.findAllByIdIn(eventIds);
+    }
+
+    public List<Event> findEventsWithAvailableSeats(int minSeats) {
+        String token = securityUtil.getAuthToken();
+        List<Long> eventIds = eventSearchClient.findEventsWithAvailableSeats(minSeats, token);
+        return eventRepository.findAllByIdIn(eventIds);
+    }
+
+    public List<Event> getUpcomingEvents() {
+        String token = securityUtil.getAuthToken();
+        List<Long> eventIds = eventSearchClient.getUpcomingEvents(token);
+        return eventRepository.findAllByIdIn(eventIds);
+    }
+
+    public Object getEventsPerDateAggregation() {
+        String token = securityUtil.getAuthToken();
+        return eventSearchClient.getEventsPerDateAggregation(token);
+    }
+
+    public List<Event> getMostPopularEvents() {
+        String token = securityUtil.getAuthToken();
+        List<Long> eventIds = eventSearchClient.getMostPopularEvents(token);
+        return eventRepository.findAllByIdIn(eventIds);
     }
 }

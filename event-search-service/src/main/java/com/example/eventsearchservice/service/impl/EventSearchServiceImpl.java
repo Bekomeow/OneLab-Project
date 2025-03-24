@@ -76,7 +76,8 @@ public class EventSearchServiceImpl implements EventSearchService {
     }
 
     public List<Long> getUpcomingEvents() {
-        return eventSearchRepository.findByStartDateAfterOrderByStartDateAsc(Instant.now())
+        return eventSearchRepository
+                .findByStartDateAfterAndStatusOrderByStartDateAsc(Instant.now(), EventStatus.PUBLISHED)
                 .stream()
                 .map(EventDocument::getEventId)
                 .toList();
