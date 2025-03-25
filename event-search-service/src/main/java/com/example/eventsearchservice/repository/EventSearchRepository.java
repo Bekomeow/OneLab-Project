@@ -23,31 +23,6 @@ public interface EventSearchRepository extends ElasticsearchRepository<EventDocu
 
     List<EventDocument> findByStartDateAfterAndStatusOrderByStartDateAsc(Instant startDate, EventStatus status);
 
-    @Query("""
-        {
-          "size": 0,
-          "aggs": {
-            "events_per_date": {
-              "date_histogram": {
-                "field": "startDate",
-                "calendar_interval": "day"
-              }
-            }
-          }
-        }
-    """)
-    List<Object> countEventsPerDate();
-
-    @Query("""
-        {
-          "size": 10,
-          "sort": [
-            { "maxParticipants": "desc" }
-          ]
-        }
-    """)
-    List<EventDocument> findMostPopularEvents();
-
     Optional<EventDocument> findByEventId(Long eventId);
 
     void deleteByEventId(Long eventId);

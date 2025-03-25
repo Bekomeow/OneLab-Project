@@ -16,6 +16,14 @@ spring:
           uri: lb://EVENT-MANAGEMENT-SERVICE
           predicates:
             - Path=/events/**
+        - id: approval-service
+          uri: lb://APPROVAL-SERVICE
+          predicates:
+            - Path=/api/approval/**
+        - id: event-search-service
+          uri: lb://EVENT-SEARCH-SERVICE
+          predicates:
+            - Path=/search/**
 
 jwt:
   secret: OQqAf7yZmXVoD0idFdFdgDgfFgKHgAsjFlUFfgTfhY9TjPz8rZwYjRidFdDefFDhNsfKKzM0uM5O6MvFo

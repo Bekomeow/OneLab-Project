@@ -25,20 +25,16 @@ public interface EventSearchClient {
 
     @GetMapping("/api/events/search/date-range")
     List<Long> findEventsInDateRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to,
+            @RequestParam("from") String from,
+            @RequestParam("to") String to,
             @RequestHeader("Authorization") String token
     );
 
+
     @GetMapping("/api/events/search/available-seats")
-    List<Long> findEventsWithAvailableSeats(@RequestParam int minSeats, @RequestHeader("Authorization") String token);
+    List<Long> findEventsWithAvailableSeats(@RequestParam Integer minSeats, @RequestHeader("Authorization") String token);
 
     @GetMapping("/api/events/search/upcoming")
     List<Long> getUpcomingEvents(@RequestHeader("Authorization") String token);
 
-    @GetMapping("/api/events/search/aggregations/dates")
-    Object getEventsPerDateAggregation(@RequestHeader("Authorization") String token);
-
-    @GetMapping("/api/events/search/popular")
-    List<Long> getMostPopularEvents(@RequestHeader("Authorization") String token);
 }

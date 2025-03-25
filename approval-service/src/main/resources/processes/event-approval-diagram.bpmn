@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.27.0">
+  <bpmn:process id="event_approval_process" name="Event Approval Process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent" name="Start" />
+    <bpmn:sequenceFlow id="flow1" sourceRef="StartEvent" targetRef="CheckData" />
+    <bpmn:serviceTask id="CheckData" name="Check Event Data"
+                      camunda:delegateExpression="${dataValidationDelegate}" />
+    <bpmn:sequenceFlow id="flow2" sourceRef="CheckData" targetRef="ModeratorApproval" />
+    <bpmn:userTask id="ModeratorApproval" name="Moderator Approval" />
+    <bpmn:sequenceFlow id="flow3" sourceRef="ModeratorApproval" targetRef="ApprovedGateway" />
+    <bpmn:exclusiveGateway id="ApprovedGateway" name="Approved?" default="flow_reject" />
+    <bpmn:sequenceFlow id="flow_approve" sourceRef="ApprovedGateway" targetRef="PublishEvent">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${approved == true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_reject" sourceRef="ApprovedGateway" targetRef="CancelEvent" />
+    <bpmn:serviceTask id="PublishEvent" name="Publish Event" camunda:expression="${approvalService.publish(execution)}" />
+    <bpmn:serviceTask id="CancelEvent" name="Cancel Event" camunda:expression="${approvalService.cancel(execution)}" />
+    <bpmn:sequenceFlow id="flow4" sourceRef="PublishEvent" targetRef="EndEvent" />
+    <bpmn:sequenceFlow id="flow5" sourceRef="CancelEvent" targetRef="EndEvent" />
+    <bpmn:endEvent id="EndEvent" name="End" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_event_approval">
+    <bpmndi:BPMNPlane id="BPMNPlane_event_approval" bpmnElement="event_approval_process">
+      <bpmndi:BPMNShape id="StartEvent_di" bpmnElement="StartEvent">
+        <dc:Bounds x="150" y="100" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="156" y="136" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CheckData_di" bpmnElement="CheckData">
+        <dc:Bounds x="210" y="90" width="100" height="56" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ModeratorApproval_di" bpmnElement="ModeratorApproval">
+        <dc:Bounds x="330" y="90" width="100" height="56" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ApprovedGateway_di" bpmnElement="ApprovedGateway" isMarkerVisible="true">
+        <dc:Bounds x="515" y="93" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="442.5" y="103" width="53" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="PublishEvent_di" bpmnElement="PublishEvent">
+        <dc:Bounds x="580" y="40" width="100" height="56" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CancelEvent_di" bpmnElement="CancelEvent">
+        <dc:Bounds x="580" y="142" width="100" height="56" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_di" bpmnElement="EndEvent">
+        <dc:Bounds x="722" y="100" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="730" y="136" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow1_di" bpmnElement="flow1">
+        <di:waypoint x="186" y="118" />
+        <di:waypoint x="210" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow2_di" bpmnElement="flow2">
+        <di:waypoint x="310" y="118" />
+        <di:waypoint x="330" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow3_di" bpmnElement="flow3">
+        <di:waypoint x="430" y="118" />
+        <di:waypoint x="515" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_approve_di" bpmnElement="flow_approve">
+        <di:waypoint x="540" y="93" />
+        <di:waypoint x="540" y="68" />
+        <di:waypoint x="580" y="68" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_reject_di" bpmnElement="flow_reject">
+        <di:waypoint x="540" y="143" />
+        <di:waypoint x="540" y="170" />
+        <di:waypoint x="580" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow4_di" bpmnElement="flow4">
+        <di:waypoint x="680" y="68" />
+        <di:waypoint x="700" y="68" />
+        <di:waypoint x="700" y="118" />
+        <di:waypoint x="722" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow5_di" bpmnElement="flow5">
+        <di:waypoint x="680" y="170" />
+        <di:waypoint x="700" y="170" />
+        <di:waypoint x="700" y="118" />
+        <di:waypoint x="722" y="118" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

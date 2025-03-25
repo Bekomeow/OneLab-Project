@@ -17,6 +17,7 @@
     <module>event-management-service</module>
     <module>event-search-service</module>
     <module>notification-service</module>
+    <module>approval-service</module>
     <module>common-library</module>
   </modules>
 </project>

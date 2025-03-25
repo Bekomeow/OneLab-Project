@@ -14,8 +14,6 @@ public interface EventSearchService {
     List<Long> searchByKeyword(String keyword);
     List<Long> filterByStatusFormatLocation(EventStatus status, EventFormat format, String location);
     List<Long> findEventsInDateRange(Instant from, Instant to);
-    List<Long> findEventsWithAvailableSeats(int minSeats);
+    List<Long> findEventsWithAvailableSeats(Integer minSeats);
     List<Long> getUpcomingEvents();
-    Object getEventsPerDateAggregation();
-    List<Long> getMostPopularEvents();
 }

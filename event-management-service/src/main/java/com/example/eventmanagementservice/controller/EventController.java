@@ -6,9 +6,9 @@ import com.example.commonlibrary.dto.event.EventUpdateDTO;
 import com.example.commonlibrary.enums.event.EventFormat;
 import com.example.commonlibrary.enums.event.EventStatus;
 import com.example.eventmanagementservice.entity.Event;
-import com.example.eventmanagementservice.search.searchService.EventSearchService;
 import com.example.eventmanagementservice.service.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +22,6 @@ import java.util.Map;
 public class EventController {
 
     private final EventService eventService;
-    private final EventSearchService eventSearchService;
 
     @PostMapping
     public ResponseEntity<Event> createEvent(@RequestBody EventDTO eventDTO) {
@@ -32,13 +31,6 @@ public class EventController {
     @PutMapping("/{eventId}")
     public ResponseEntity<Event> updateEvent(@PathVariable Long eventId, @RequestBody EventUpdateDTO eventDTO) {
         return ResponseEntity.ok(eventService.updateEvent(eventId, eventDTO));
-    }
-
-    //FOR MODERATOR ONLY
-    @PostMapping("/{eventId}/publish")
-    public ResponseEntity<Void> publishEvent(@PathVariable Long eventId) {
-        eventService.publishEvent(eventId);
-        return ResponseEntity.noContent().build();
     }
 
     //FOR MODERATOR AND EVENT OWNER
@@ -116,29 +108,19 @@ public class EventController {
 
     @GetMapping("/catalog/date-range")
     public ResponseEntity<List<Event>> findEventsInDateRangeCatalog(
-            @RequestParam Instant from,
-            @RequestParam Instant to) {
+            @RequestParam String from,
+            @RequestParam String to)  {
         return ResponseEntity.ok(eventService.findEventsInDateRange(from, to));
     }
 
     @GetMapping("/catalog/available-seats")
-    public ResponseEntity<List<Event>> findEventsWithAvailableSeatsCatalog(@RequestParam int minSeats) {
+    public ResponseEntity<List<Event>> findEventsWithAvailableSeatsCatalog(@RequestParam Integer minSeats) {
         return ResponseEntity.ok(eventService.findEventsWithAvailableSeats(minSeats));
     }
 
     @GetMapping("/catalog/upcoming")
     public ResponseEntity<List<Event>> getUpcomingEventsCatalog() {
         return ResponseEntity.ok(eventService.getUpcomingEvents());
-    }
-
-    @GetMapping("/catalog/aggregation")
-    public ResponseEntity<Object> getEventsPerDateAggregationCatalog() {
-        return ResponseEntity.ok(eventService.getEventsPerDateAggregation());
-    }
-
-    @GetMapping("/catalog/popular")
-    public ResponseEntity<List<Event>> getMostPopularEventsCatalog() {
-        return ResponseEntity.ok(eventService.getMostPopularEvents());
     }
 }
 

@@ -38,7 +38,7 @@ public class EventSearchController {
     }
 
     @GetMapping("/available-seats")
-    public List<Long> findEventsWithAvailableSeats(@RequestParam int minSeats) {
+    public List<Long> findEventsWithAvailableSeats(@RequestParam Integer minSeats) {
         return eventSearchService.findEventsWithAvailableSeats(minSeats);
     }
 
@@ -47,13 +47,4 @@ public class EventSearchController {
         return eventSearchService.getUpcomingEvents();
     }
 
-    @GetMapping("/aggregations/dates")
-    public Object getEventsPerDateAggregation() {
-        return eventSearchService.getEventsPerDateAggregation();
-    }
-
-    @GetMapping("/popular")
-    public List<Long> getMostPopularEvents() {
-        return eventSearchService.getMostPopularEvents();
-    }
 }

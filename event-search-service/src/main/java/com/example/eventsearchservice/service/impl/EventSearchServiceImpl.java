@@ -69,7 +69,7 @@ public class EventSearchServiceImpl implements EventSearchService {
                 .collect(Collectors.toList());
     }
 
-    public List<Long> findEventsWithAvailableSeats(int minSeats) {
+    public List<Long> findEventsWithAvailableSeats(Integer minSeats) {
         return eventSearchRepository.findByAvailableSeatsGreaterThan(minSeats)
                 .stream().map(EventDocument::getEventId)
                 .collect(Collectors.toList());
@@ -81,16 +81,6 @@ public class EventSearchServiceImpl implements EventSearchService {
                 .stream()
                 .map(EventDocument::getEventId)
                 .toList();
-    }
-
-    public Object getEventsPerDateAggregation() {
-        return eventSearchRepository.countEventsPerDate();
-    }
-
-    public List<Long> getMostPopularEvents() {
-        return eventSearchRepository.findMostPopularEvents()
-                .stream().map(EventDocument::getEventId)
-                .collect(Collectors.toList());
     }
 }
 

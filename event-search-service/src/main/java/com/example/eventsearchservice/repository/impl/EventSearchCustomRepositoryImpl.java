@@ -26,13 +26,13 @@ public class EventSearchCustomRepositoryImpl implements EventSearchCustomReposit
         List<Query> filters = new ArrayList<>();
 
         if (status != null) {
-            filters.add(Query.of(q -> q.term(t -> t.field("status").value(status.name()))));
+            filters.add(Query.of(q -> q.term(t -> t.field("status.keyword").value(status.name()))));
         }
         if (format != null) {
-            filters.add(Query.of(q -> q.term(t -> t.field("eventFormat").value(format.name()))));
+            filters.add(Query.of(q -> q.term(t -> t.field("eventFormat.keyword").value(format.name()))));
         }
         if (location != null && !location.isBlank()) {
-            filters.add(Query.of(q -> q.term(t -> t.field("location").value(location))));
+            filters.add(Query.of(q -> q.term(t -> t.field("location.keyword").value(location))));
         }
 
         BoolQuery boolQuery = BoolQuery.of(b -> b.must(filters));

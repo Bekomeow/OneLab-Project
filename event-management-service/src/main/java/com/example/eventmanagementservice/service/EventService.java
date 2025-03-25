@@ -14,7 +14,6 @@ import java.util.Optional;
 public interface EventService {
     Event createEvent(EventDTO eventDTO);
     Event updateEvent(Long id, EventUpdateDTO eventDto);
-    void publishEvent(Long eventId);
     void cancelEvent(Long eventId, String reason);
     void closeRegistration(Long eventId);
     void completeEvent(Long eventId);
@@ -28,9 +27,7 @@ public interface EventService {
     Map<Boolean, List<Event>> partitionEventsByDate();
     List<Event> searchByKeyword(String keyword);
     List<Event> filterByStatusFormatLocation(EventStatus status, EventFormat format, String location);
-    List<Event> findEventsInDateRange(Instant from, Instant to);
-    List<Event> findEventsWithAvailableSeats(int minSeats);
+    List<Event> findEventsInDateRange(String from, String to);
+    List<Event> findEventsWithAvailableSeats(Integer minSeats);
     List<Event> getUpcomingEvents();
-    Object getEventsPerDateAggregation();
-    List<Event> getMostPopularEvents();
 }

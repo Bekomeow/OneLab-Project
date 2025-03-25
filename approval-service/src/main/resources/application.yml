@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: approval-service
+  datasource:
+    url: jdbc:postgresql://localhost:5434/event_service_db
+    username: beko
+    password: beko
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  jmx:
+      enabled: false
+
+camunda:
+  bpm:
+    admin-user:
+      id: demo
+      password: demo
+    filter:
+      create: All tasks
+    default-serialization-format: application/json
+    metrics:
+      enabled: false
+
+jwt:
+  secret: OQqAf7yZmXVoD0idFdFdgDgfFgKHgAsjFlUFfgTfhY9TjPz8rZwYjRidFdDefFDhNsfKKzM0uM5O6MvFo
+
+server:
+  port: 0
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka

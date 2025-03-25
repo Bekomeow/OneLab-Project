@@ -6,15 +6,16 @@ import com.example.commonlibrary.dto.event.EventStatusDto;
 import com.example.commonlibrary.dto.event.EventUpdateDTO;
 import com.example.commonlibrary.enums.event.EventFormat;
 import com.example.commonlibrary.enums.event.EventStatus;
+import com.example.eventmanagementservice.event.EventCreatedEvent;
 import com.example.eventmanagementservice.client.EventSearchClient;
 import com.example.eventmanagementservice.entity.Event;
 import com.example.eventmanagementservice.repository.EventRepository;
-import com.example.eventmanagementservice.search.searchService.EventSearchService;
 import com.example.eventmanagementservice.security.SecurityUtil;
 import com.example.eventmanagementservice.service.EventService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -34,10 +35,10 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
-    private final EventSearchService eventSearchService;
     private final KafkaTemplate<String, Object> jsonKafkaTemplate;
     private final KafkaTemplate<String, Long> longKafkaTemplate;
     private final EventSearchClient eventSearchClient;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final SecurityUtil securityUtil;
 
     @Transactional
@@ -82,6 +83,11 @@ public class EventServiceImpl implements EventService {
 
         jsonKafkaTemplate.send("event.created", eventSearchDto);
 
+//        Start camunda process
+        applicationEventPublisher.publishEvent(
+                new EventCreatedEvent(event, "Bearer " + securityUtil.getAuthToken())
+        );
+
         return event;
     }
 
@@ -90,8 +96,6 @@ public class EventServiceImpl implements EventService {
                 .map(event -> {
                     event.setTitle(eventDto.getTitle());
                     event.setDescription(eventDto.getDescription());
-
-                    eventSearchService.indexEvent(event);
 
                     EventSearchDto eventSearchDto = EventSearchDto.builder()
                             .eventId(event.getId())
@@ -106,37 +110,6 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + id));
     }
 
-    public void publishEvent(Long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Мероприятие не найдено"));
-
-        if (!event.getStatus().equals(EventStatus.DRAFT)) {
-            throw new IllegalStateException("Мероприятие уже опубликовано");
-        }
-
-        event.setStatus(EventStatus.PUBLISHED);
-        eventRepository.save(event);
-
-        String email = securityUtil.getEmailByUsername(event.getOrganizerName());
-
-        EventStatusDto notification = EventStatusDto.builder()
-                .email(email)
-                .title(event.getTitle())
-                .description(event.getDescription())
-                .date(event.getStartDate())
-                .maxParticipants(event.getMaxParticipants())
-                .status("PUBLISHED")
-                .build();
-
-        EventSearchDto eventSearchDto = EventSearchDto.builder()
-                .eventId(event.getId())
-                .status(event.getStatus())
-                .build();
-
-        jsonKafkaTemplate.send("event.status.notification", notification);
-        jsonKafkaTemplate.send("event.updated", eventSearchDto);
-    }
-
     public void cancelEvent(Long eventId, String reason) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Мероприятие не найдено"));
@@ -145,7 +118,7 @@ public class EventServiceImpl implements EventService {
             throw new IllegalStateException("Событие уже завершено.");
         }
 
-        if (securityUtil.getCurrentUsername().orElse("").equals(event.getOrganizerName()) || securityUtil.hasRole("ROLE_MODERATOR")) {
+        if (securityUtil.getCurrentUsername().orElse("").equals(event.getOrganizerName())) {
             event.setStatus(EventStatus.CANCELLED);
             eventRepository.save(event);
 
@@ -284,42 +257,32 @@ public class EventServiceImpl implements EventService {
 //    SEARCH SERVICE METHODS
     public List<Event> searchByKeyword(String keyword) {
         String token = securityUtil.getAuthToken();
-        List<Long> eventIds = eventSearchClient.searchByKeyword(keyword, token);
+        List<Long> eventIds = eventSearchClient.searchByKeyword(keyword, "Bearer " + token);
         return eventRepository.findAllByIdIn(eventIds);
     }
 
     public List<Event> filterByStatusFormatLocation(EventStatus status, EventFormat format, String location) {
         String token = securityUtil.getAuthToken();
-        List<Long> eventIds = eventSearchClient.filterByStatusFormatLocation(status, format, location, token);
+        List<Long> eventIds = eventSearchClient.filterByStatusFormatLocation(status, format, location, "Bearer " + token);
         return eventRepository.findAllByIdIn(eventIds);
     }
 
-    public List<Event> findEventsInDateRange(Instant from, Instant to) {
+    public List<Event> findEventsInDateRange(String from, String to) {
         String token = securityUtil.getAuthToken();
-        List<Long> eventIds = eventSearchClient.findEventsInDateRange(from, to, token);
+        List<Long> eventIds = eventSearchClient.findEventsInDateRange(from, to, "Bearer " + token);
         return eventRepository.findAllByIdIn(eventIds);
     }
 
-    public List<Event> findEventsWithAvailableSeats(int minSeats) {
+    public List<Event> findEventsWithAvailableSeats(Integer minSeats) {
         String token = securityUtil.getAuthToken();
-        List<Long> eventIds = eventSearchClient.findEventsWithAvailableSeats(minSeats, token);
+        List<Long> eventIds = eventSearchClient.findEventsWithAvailableSeats(minSeats, "Bearer " + token);
         return eventRepository.findAllByIdIn(eventIds);
     }
 
     public List<Event> getUpcomingEvents() {
         String token = securityUtil.getAuthToken();
-        List<Long> eventIds = eventSearchClient.getUpcomingEvents(token);
+        List<Long> eventIds = eventSearchClient.getUpcomingEvents("Bearer " + token);
         return eventRepository.findAllByIdIn(eventIds);
     }
 
-    public Object getEventsPerDateAggregation() {
-        String token = securityUtil.getAuthToken();
-        return eventSearchClient.getEventsPerDateAggregation(token);
-    }
-
-    public List<Event> getMostPopularEvents() {
-        String token = securityUtil.getAuthToken();
-        List<Long> eventIds = eventSearchClient.getMostPopularEvents(token);
-        return eventRepository.findAllByIdIn(eventIds);
-    }
 }

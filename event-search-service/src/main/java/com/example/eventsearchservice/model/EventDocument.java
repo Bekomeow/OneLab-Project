@@ -2,8 +2,11 @@ package com.example.eventsearchservice.model;
 
 import com.example.commonlibrary.enums.event.EventFormat;
 import com.example.commonlibrary.enums.event.EventStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -14,7 +17,10 @@ import java.time.Instant;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(indexName = "events")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EventDocument {
 
     @Id
