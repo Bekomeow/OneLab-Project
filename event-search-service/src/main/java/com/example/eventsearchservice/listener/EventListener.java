@@ -1,7 +1,6 @@
 package com.example.eventsearchservice.listener;
 
 import com.example.commonlibrary.dto.event.EventSearchDto;
-import com.example.commonlibrary.dto.event.EventStatusDto;
 import com.example.eventsearchservice.service.EventSearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
